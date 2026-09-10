@@ -1,0 +1,21 @@
+## Plan {.section .vcenter}
+
+::: {.flush}
+::: {.msg-list}
+::: {.msg-item .large}
+[**1. Kitagawa's Decomposition**](#kitagawa)
+:::
+
+::: {.msg-item .large}
+[**2. Oaxaca–Blinder Decomposition**](#oaxaca)
+:::
+
+::: {.msg-item .large}
+[**3. Concentration Index Decomposition**](#concentration)
+:::
+
+::: {.msg-item .large}
+[**4. Interventional Decomposition**](#intervention)
+:::
+:::
+:::

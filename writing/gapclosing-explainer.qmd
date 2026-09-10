@@ -1,0 +1,492 @@
+---
+title: "The Gap-Closing Estimand"
+subtitle: "Replicating Lundberg (2024) manually"
+author: "Sam Harper"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    embed-resources: true
+    theme: cosmo
+bibliography: references.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+## Overview
+
+@lundberg2024 introduces the **gap-closing estimand**: a way to ask *how
+much of an observed gap between social groups would close if we
+intervened on a treatment?* This document works through the mechanics
+using the package's own simulated dataset — first calling `gapclosing()`, then replicating each step 'by hand'.
+
+The three manual estimators we cover are:
+
+1.  **Outcome model** (g-computation / standardization)
+2.  **Inverse probability weighting (IPW)**
+3.  **Doubly-robust (AIPW)**
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(here)
+library(gapclosing)
+library(tidyverse)
+library(tinytable)
+library(marginaleffects)
+library(ggdag)
+library(dagitty)
+library(ggraph)
+```
+
+------------------------------------------------------------------------
+
+## The causal model
+
+Before touching data, we need to be explicit about the causal structure
+we assume. The DAG below encodes our assumptions:
+
+```{r}
+#| label: dag
+#| fig-width: 6
+#| fig-height: 3
+#| fig-align: center
+#| echo: false
+#| warning: false
+
+dag <- dagify(
+  T ~ L + X,
+  Y ~ T + L + X,
+  L ~ X,
+  coords = list(
+    x = c(X = 1, L = 2.5, T = 2.5, Y = 4),
+    y = c(X = 1, L = 2,   T = 0,   Y = 1)
+  ),
+  labels = c(
+    X = "Category\n(X)",
+    L = "Confounder\n(L)",
+    T = "Treatment\n(T)",
+    Y = "Outcome\n(Y)"
+  )
+)
+
+dag |>
+  tidy_dagitty() |>
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges_link(
+    arrow = grid::arrow(length = grid::unit(6, "pt"), type = "closed"),
+    edge_colour = "black", edge_width = 0.6
+  ) +
+  geom_dag_point(color = "white", size = 18, stroke = 1,
+                 shape = 21, fill = "white") +
+  geom_dag_label(aes(label = label), colour = "black", size = 3,
+                 fontface = "plain", fill = NA, label.size = 0) +
+  theme_dag_blank() +
+  theme(plot.background = element_rect(fill = "white", color = NA))
+
+```
+
+**Reading the DAG:**
+
+- **X → L**: Category membership determines the distribution of the
+  confounder (in the simulation, L's mean shifts by −1.5 / 0 / +1.5
+  across categories A / B / C).
+- **L → T**: The confounder raises treatment probability (p =
+  plogis(L)), so higher-L groups are more likely to be treated.
+- **L → Y**: The confounder also directly raises the outcome (Y = L +
+  ...), creating a backdoor path T ← L → Y.
+- **T → Y**: The treatment effect of interest — and crucially, its
+  magnitude *varies by category* (τ_A = +1.3, τ_B = 0, τ_C = −1.2).
+
+The **backdoor path** T ← L → Y means a naive comparison of treated vs.
+untreated confounds the treatment effect with baseline L differences.
+Conditioning on L (within category) blocks this path and identifies
+E\[Y(t)\].
+
+------------------------------------------------------------------------
+
+## The simulated data
+
+The package ships a data-generating function. Here is exactly what it
+does:
+
+```{r}
+#| label: dgp
+set.seed(08544)
+n <- 1000
+
+dat <- data.frame(
+  category = sample(c("A", "B", "C"), n, replace = TRUE)
+) |>
+  mutate(
+    # L | X ~ N(mu_X, 1);  mu differs by category
+    confounder = rnorm(
+      n,
+      mean = case_when(category == "A" ~ -1.5,
+                       category == "B" ~  0,
+                       category == "C" ~  1.5),
+      sd = 1
+    ),
+    # T | L ~ Bernoulli(plogis(L))  — L confounds T -> Y
+    treatment = rbinom(n, 1, plogis(confounder)),
+    # category-specific treatment effects
+    tau = case_when(category == "A" ~  1.3,
+                    category == "B" ~  0.0,
+                    category == "C" ~ -1.2),
+    # Y | L, T, X ~ N(L + T*tau_X, 1)
+    outcome = rnorm(n, 
+      mean = confounder + treatment * tau, 
+      sd = 1)
+  ) |>
+  select(-tau)   # not observed in practice
+
+head(dat)
+```
+
+The key design features:
+
+- **Confounding:** `confounder` (L) affects both treatment take-up
+  (`plogis(L)`) and the outcome (`Y = L + ...`). Groups with higher L
+  means (C \> B \> A) are both more likely to be treated *and* have
+  higher baseline outcomes.
+- **Effect heterogeneity:** τ is positive in A (+1.3), zero in B, and
+  negative in C (−1.2). This means the *same* intervention (T=1) will
+  *raise* outcomes in A but *lower* them in C.
+
+------------------------------------------------------------------------
+
+## Step 1 — The gap
+
+Before any counterfactual reasoning, what group differences do we actually observe?
+
+```{r}
+#| label: factual
+factual <- dat |>
+  group_by(category) |>
+  summarise(mean_y = mean(outcome), n = n(), .groups = "drop")
+
+tt(factual, digits = 2)
+```
+
+```{r}
+#| label: factual-gap
+gap_AB_fact <- factual$mean_y[factual$category == "A"] -
+               factual$mean_y[factual$category == "B"]
+gap_CB_fact <- factual$mean_y[factual$category == "C"] -
+               factual$mean_y[factual$category == "B"]
+
+cat("Factual gap  A - B:", round(gap_AB_fact, 3),
+    "\nFactual gap  C - B:", round(gap_CB_fact, 3), "\n")
+```
+
+These observed gaps conflate two things: (a) the effect of
+treatment and (b) differences in the confounder L across categories. Group C has the highest L mean, so its members get treated more often *and* have higher baseline outcomes — even though τ_C is actually negative.
+
+------------------------------------------------------------------------
+
+## Step 2 — What are we actually estimating?
+
+Before fitting any models it is worth being precise about the estimand,
+because the gap-closing estimand is easy to confuse with a treatment
+effect.
+
+**What it is not.** A treatment effect contrast asks: for people in
+group $x$, how much does treatment help?
+
+$$E[Y(1) \mid X=x] - E[Y(0) \mid X=x] \quad \text{(ATE within category)}$$
+
+**What it is.** The gap-closing estimand asks: after a common
+intervention that sets $T=1$ for everyone, how much inequality *between*
+groups remains?
+
+$$E[Y(1) \mid X=A] - E[Y(1) \mid X=B] \quad \text{(gap-closing estimand)}$$
+
+The comparison is *across groups under a shared counterfactual*, not
+*across treatment arms within a group*. You hold the treatment fixed at
+$T=1$ for everyone and ask how the outcome means still differ by
+category.
+
+The connection to the factual gap is what makes this useful for health
+equity work. Start with the observed gap:
+
+$$\underbrace{E[Y \mid X=A] - E[Y \mid X=B]}_{\text{factual gap}}$$
+
+This conflates differential treatment rates, confounder differences, and
+treatment effect heterogeneity. The gap-closing estimand isolates one
+specific mechanism: *if we equalized treatment uptake at $T=1$, what
+share of that gap would close?*
+
+The answer need not be "most of it." In this simulation the gap nearly
+closes because it is almost entirely driven by differential treatment
+rates (through L). But equalizing treatment could leave most of the gap
+intact — if the gap is driven by something treatment does not touch —
+which is itself a substantive finding.
+
+------------------------------------------------------------------------
+
+## Step 3 — The `gapclosing()` function  {#sec-pkg}
+
+**Counterfactual intervention:** set T = 1 for everyone.
+
+The `gapclosing()` function fits an outcome model and a propensity model, combines them in a doubly-robust estimator, and returns the counterfactual mean for each category.
+
+```{r}
+#| label: gapclosing-pkg
+#| message: false
+#| warning: false
+#| cache: true
+estimate <- gapclosing(
+  data                     = dat,
+  counterfactual_assignments = 1,
+  outcome_formula          = formula(outcome ~ confounder + category * treatment),
+  treatment_formula        = formula(treatment ~ confounder + category),
+  category_name            = "category",
+  se                       = FALSE
+)
+
+summary(estimate)
+```
+
+Now let's recreate those numbers ourselves.
+
+
+## Step 4 — By hand
+
+The identification assumption throughout is **no unmeasured
+confounding** given (category, confounder):
+
+$$Y(t) \perp\!\!\!\perp T \mid \{\text{category},\, L\}$$
+
+Because we generated the data, we know this holds by construction.
+
+### 3a. Outcome model (standardization)
+
+**Logic:** fit an outcome model on the observed data, then predict every person's outcome *as if* they had been treated (T = 1), and average within each category. This "standardizes" over the confounder distribution.
+
+$$\hat{E}[Y(1) \mid X = x] = \frac{1}{n_x} \sum_{i: X_i = x} \hat{E}[Y \mid L_i, X_i, T = 1]$$
+
+```{r}
+#| label: om
+# Fit outcome model
+m_out <- lm(outcome ~ confounder + category * treatment, data = dat)
+
+# Predict Y(T=1) for every person
+dat_t1  <- dat |> mutate(treatment = 1)
+dat$yhat_t1 <- predict(m_out, newdata = dat_t1)
+
+# Average within category
+cf_om <- dat |>
+  group_by(category) |>
+  summarise(cf_mean_om = mean(yhat_t1), .groups = "drop")
+
+tt(cf_om, digits = 2)
+```
+
+This can also be accomplished with `marginaleffects`, but it takes some care in estimating. Using the `var` option with `datagrid=1` set the entire sample to a specific category then generates predictions and averages them:
+
+```{r}
+#| label: out_mp
+
+cf_om_mp <- avg_predictions(m_out, 
+  var = "category",
+  datagrid(treatment=1)) |>
+  select(category, estimate, conf.low, conf.high)
+
+tt(cf_om_mp, digits = 2)
+```
+
+What we want, in fact, is specific predictions within each category while setting the treatment indicator to 1 for everyone, regardless of their actual treatment status: 
+
+```{r}
+#| label: out_mp2
+
+tt(cf_om_mp, digits = 2)
+
+cf_om_mp2 <- avg_predictions(m_out, 
+  by = "category", 
+  newdata = transform(dat, treatment = 1)) |>
+  select(category, estimate, conf.low, conf.high)
+
+tt(cf_om_mp2, digits = 2)
+
+```
+
+
+The outcome model is consistent when the outcome model is correctly specified. It can fail if the model is misspecified (wrong functional form, missing interactions).
+
+### 3b. Inverse probability weighting (IPW)
+
+**Logic:** reweight treated observations so that, within each category, the treated look like a random draw from the full population. Treated people with a low propensity (lucky to be treated) get upweighted; those with a high propensity get downweighted. Once again, there is more than one way to accomplish this.
+
+One way is to use the **Hajek (stabilized) estimator** to keep weights well-behaved:
+
+$$\hat{E}[Y(1) \mid X = x] = \frac{\sum_{i: X_i = x} \frac{T_i Y_i}{\hat{p}_i}}{\sum_{i: X_i = x} \frac{T_i}{\hat{p}_i}}$$
+
+where $\hat{p}_i = \hat{P}(T = 1 \mid L_i, X_i)$.
+
+Then one can just estimate the weighted means by category (weighted by IPW):
+
+```{r}
+#| label: ipw
+# Fit propensity model
+m_ps  <- glm(treatment ~ confounder + category,
+             data = dat, family = binomial)
+dat$ps <- predict(m_ps, type = "response")
+
+# Hajek IPW estimator within each category
+cf_ipw <- dat |>
+  group_by(category) |>
+  summarise(
+    cf_mean_ipw = sum(treatment * outcome / ps) /
+                  sum(treatment / ps),
+    .groups = "drop"
+  )
+
+cf_ipw
+```
+
+Alternatively, one can also pursue a regression-based approach using stabilized weights:
+
+```{r}
+# Marginal treatment probability (scalar)
+p_marginal <- mean(dat$treatment)
+
+# Stabilized weights for treated observations
+dat <- dat |>
+  mutate(sw = if_else(treatment == 1, 
+    p_marginal / ps, NA_real_))
+
+# Weighted regression on treated only
+m_ipw_stab <- lm(outcome ~ category, 
+                 data   = dat[dat$treatment == 1, ],
+                 weights = sw)
+
+coef(m_ipw_stab)
+```
+
+IPW is consistent when the propensity model is correctly specified. It
+can be noisy when propensity scores are near 0 or 1 (extreme weights).
+
+### 3c. Doubly-robust (AIPW)
+
+**Logic:** combine both models so that you only need *one* of them to be
+correct. The AIPW pseudo-outcome for person $i$ is:
+
+$$\psi_i = \underbrace{\hat{E}[Y \mid L_i, X_i, T=1]}_{\text{outcome model prediction}} + \underbrace{\frac{T_i}{\hat{p}_i}\bigl(Y_i - \hat{E}[Y \mid L_i, X_i, T=1]\bigr)}_{\text{IPW residual correction}}$$
+
+Then $\hat{E}[Y(1) \mid X = x] = \bar{\psi}$ within category $x$.
+
+When the outcome model is correct, the second term has mean zero — it's
+just noise that washes out. When the propensity model is correct, the
+IPW term corrects any bias from outcome model misspecification.
+
+```{r}
+#| label: dr
+dat <- dat |>
+  mutate(
+    psi = yhat_t1 + (treatment / ps) * (outcome - yhat_t1)
+  )
+
+cf_dr <- dat |>
+  group_by(category) |>
+  summarise(cf_mean_dr = mean(psi), .groups = "drop")
+
+cf_dr
+```
+
+------------------------------------------------------------------------
+
+## Step 5 — Compare all estimators
+
+```{r}
+#| label: compare
+results <- factual |>
+  rename(factual = mean_y) |>
+  select(category, factual) |>
+  left_join(cf_om,  by = "category") |>
+  left_join(cf_ipw, by = "category") |>
+  left_join(cf_dr,  by = "category")
+
+results
+```
+
+### Gap-closing fractions
+
+How much of the factual gap (relative to category B) would close under
+universal treatment?
+
+```{r}
+#| label: gap-closing
+gcf <- function(cf_col) {
+  cf <- results[[cf_col]]
+  names(cf) <- results$category
+  gap_cf <- cf["A"] - cf["B"]
+  gap_f  <- results$factual[results$category == "A"] -
+            results$factual[results$category == "B"]
+  1 - gap_cf / gap_f
+}
+
+tibble(
+  Estimator       = c("Outcome model", "IPW", "Doubly-robust"),
+  `Gap A-B closed` = map_dbl(c("cf_mean_om","cf_mean_ipw","cf_mean_dr"), gcf)
+)
+```
+
+```{r}
+#| label: plot
+#| fig-width: 8
+#| fig-height: 4
+plot_df <- results |>
+  pivot_longer(-category, names_to = "estimator", values_to = "mean") |>
+  mutate(estimator = recode(estimator,
+    factual     = "Factual",
+    cf_mean_om  = "Outcome model",
+    cf_mean_ipw = "IPW",
+    cf_mean_dr  = "Doubly-robust"
+  ) |> factor(levels = c("Factual","Outcome model","IPW","Doubly-robust")))
+
+ggplot(plot_df, aes(x = category, y = mean,
+                    color = estimator, group = estimator)) +
+  geom_point(size = 3) +
+  geom_line() +
+  scale_color_manual(values = c("black","#E41A1C","#377EB8","#4DAF4A")) +
+  labs(
+    x = "Category", y = "Mean outcome", color = NULL,
+    title = "Factual vs. counterfactual (T = 1) outcome means",
+    subtitle = "Three manual estimators vs. the gapclosing() package"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+------------------------------------------------------------------------
+
+## Key takeaways
+
+1.  **The factual gap is confounded.** Category C has the highest
+    observed mean despite having a *negative* treatment effect (τ_C =
+    −1.2), because C members have the highest baseline L.
+
+2.  **Universal treatment (T = 1) nearly equalizes outcomes** across
+    categories. The outcome model, IPW, and doubly-robust estimators all
+    agree: the counterfactual means cluster much closer together than
+    the factual means.
+
+3.  **All three estimators agree here** because both the outcome model
+    and the propensity model are correctly specified (we generated the
+    data). In practice, the doubly-robust estimator is preferred because
+    it only needs one of the two models to be right.
+
+4.  **The gap-closing fraction** tells you what share of the observed
+    gap a given intervention would eliminate — a more policy-relevant
+    quantity than the raw treatment effect.
+
+------------------------------------------------------------------------
+
+## References
+
+::: {#refs}
+:::
