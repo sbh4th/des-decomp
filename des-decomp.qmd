@@ -1,0 +1,1474 @@
+---
+title: "Decomposition Techniques for Social Epidemiology: Why and How"
+subtitle: "Danish Epidemiological Society Conference"
+author: "Sam Harper"
+date: 2026-08-22
+date-format: iso
+format:
+  revealjs:
+    theme: [default, custom.scss]
+    width: 1600
+    height: 900
+    slide-number: true
+    html-math-method: mathjax
+    auto-stretch: false
+    embed-resources: true
+title-slide-attributes:
+    data-background-image: "images/mcgill-epi-logo.png"
+    data-background-size: 30%
+    data-background-position: 50% 90%
+editor: source
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(tidyverse)
+library(labelled)
+library(modelsummary)
+library(rineq)
+library(ggplot2)
+library(modelsummary)
+library(tinytable)
+library(patchwork)
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+knitr::opts_chunk$set(
+  echo = FALSE,
+  fig.align = "center",
+  out.width = "100%"
+)
+
+# ── Load KBO decomposition objects ────────────────────────────────────────────
+rds_dir <- here("data")
+
+s          <- readRDS(file.path(rds_dir, "kbo_settings.rds"))
+kbo_sum    <- readRDS(file.path(rds_dir, "kbo_summary.rds"))
+decomp_tbl <- readRDS(file.path(rds_dir, "kbo_decomp_big_tbl.rds"))
+means_df   <- readRDS(file.path(rds_dir, "kbo_means_df.rds"))
+coef_df    <- readRDS(file.path(rds_dir, "kbo_coef_df.rds"))
+endow_df   <- readRDS(file.path(rds_dir, "kbo_endow_detail.rds"))
+ess_kbo    <- readRDS(file.path(rds_dir, "kbo_ess_kbo.rds"))
+
+# Unpack settings into local variables for use in plots and inline text
+list2env(s, envir = .GlobalEnv)
+list2env(as.list(kbo_sum), envir = .GlobalEnv)
+
+# ── tinytable helper ──────────────────────────────────────────────────────────
+# Renders the full three-reference-group KBO table.
+#
+# show_cols: how many reference-group column pairs to show (1, 2, or 3).
+#            Columns not yet shown are greyed out.
+# hi_section: "overall" | "endow" | "coef" | "inter" | NULL
+#             Highlights the corresponding row block in yellow.
+#
+# Column layout:
+#   col 1       = row label
+#   cols 2-3    = GROUP_2 betas (Est, SE)
+#   cols 4-5    = GROUP_1 betas (Est, SE)
+#   cols 6-7    = Pooled      (Est, SE)
+
+tt_decomp <- function(show_cols = 3, hi_section = NULL) {
+
+  # Build display data frame with unique column names
+  tbl_disp <- data.frame(
+    Label  = decomp_tbl$label,
+    g2_est = decomp_tbl$g2_est,  g2_se = decomp_tbl$g2_se,
+    g1_est = decomp_tbl$g1_est,  g1_se = decomp_tbl$g1_se,
+    gp_est = decomp_tbl$gp_est,  gp_se = decomp_tbl$gp_se,
+    stringsAsFactors = FALSE
+  )
+
+  # Indent per-variable rows
+  indent_rows <- which(decomp_tbl$section %in% c("endow_var", "coef_var"))
+  tbl_disp$Label[indent_rows] <- paste0("   ", tbl_disp$Label[indent_rows])
+
+  bold_rows <- which(decomp_tbl$bold)
+  sep_row   <- which(decomp_tbl$label == "Difference")
+  grey_cols <- if (show_cols == 1) 4:7 else if (show_cols == 2) 6:7 else integer(0)
+
+  hi_rows <- switch(hi_section %||% "none",
+    overall = which(decomp_tbl$section == "overall"),
+    endow   = which(decomp_tbl$section %in% c("endow_tot", "endow_var")),
+    coef    = which(decomp_tbl$section %in% c("coef_tot",  "coef_var")),
+    inter   = which(decomp_tbl$section == "inter"),
+    integer(0)
+  )
+
+  # Spanning headers as plain named lists (no tidy-eval)
+  sub_header <- setNames(
+    list(1L, 2:3, 4:5, 6:7),
+    c(" ", GROUP_2, GROUP_1, "Pooled")
+  )
+  top_header <- list(
+    " "                                   = 1L,
+    "Coefficients used in decomposition:" = 2:7
+  )
+
+  # Build base table, then apply conditional styles outside the pipe
+  tbl <- tt(tbl_disp, width = 1) |>
+    format_tt(j = 2:7, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+    group_tt(j = sub_header) |>
+    group_tt(j = top_header) |>
+    style_tt(j = 1,   align = "l") |>
+    style_tt(j = 2:7, align = "r") |>
+    style_tt(i = sep_row,  line = "b",
+             line_color = "#888888", line_width = 0.4) |>
+    style_tt(i = bold_rows, bold = TRUE)
+
+  if (length(hi_rows)   > 0)
+    tbl <- style_tt(tbl, i = hi_rows,   background = "#fff3cd")
+  if (length(grey_cols) > 0)
+    tbl <- style_tt(tbl, j = grey_cols,
+                    color = "#cccccc", background = "#f8f8f8")
+  tbl
+}
+
+# ── ggplot rebuild helpers ────────────────────────────────────────────────────
+as_group <- function(x) factor(x, levels = c(0, 1), labels = c(GROUP_1, GROUP_2))
+
+plot_bmi_density <- function() {
+  mean_df <- ess_kbo |>
+    mutate(grp = as_group(.data[[GROUP_VAR]])) |>
+    group_by(grp) |>
+    summarise(mean_out = weighted.mean(.data[[OUTCOME]], wt), .groups = "drop")
+
+  ess_kbo |>
+    mutate(grp = as_group(.data[[GROUP_VAR]])) |>
+    ggplot(aes(x = .data[[OUTCOME]], fill = grp, colour = grp)) +
+    geom_density(alpha = 0.35, linewidth = 0.8) +
+    geom_vline(data = mean_df,
+               aes(xintercept = mean_out, colour = grp),
+               linetype = "dashed", linewidth = 0.8) +
+    scale_fill_manual(values = grp_colors) +
+    scale_colour_manual(values = grp_colors) +
+    labs(x = OUTCOME_LABEL, y = "Density", fill = NULL, colour = NULL) +
+    theme_minimal(base_size = 16) +
+    theme(panel.grid.minor = element_blank(), legend.position = "top")
+}
+
+plot_kbo_means <- function() {
+  pct_vars <- c("Female", "Current smoker", "Binge drinking (monthly+)", "Married")
+  plot_df <- means_df |>
+    mutate(
+      mean     = if_else(variable %in% pct_vars, mean * 100, mean),
+      variable = if_else(variable %in% pct_vars,
+                         paste0(variable, " (%)"), variable)
+    )
+  ggplot(plot_df, aes(x = mean, y = variable, colour = grp, shape = grp)) +
+    geom_line(aes(group = variable), colour = "grey70", linewidth = 0.6) +
+    geom_point(size = 4) +
+    scale_colour_manual(values = grp_colors) +
+    scale_shape_manual(values  = grp_shapes) +
+    labs(x = "Weighted mean", y = NULL, colour = NULL, shape = NULL) +
+    theme_minimal(base_size = 16) +
+    theme(panel.grid.major.y = element_blank(),
+          panel.grid.minor   = element_blank(),
+          legend.position    = "top")
+}
+
+plot_kbo_coefs <- function() {
+  ggplot(coef_df, aes(x = estimate, y = term, colour = grp, shape = grp)) +
+    geom_vline(xintercept = 0, colour = "grey50", linetype = "dashed",
+               linewidth = 0.5) +
+    geom_linerange(aes(xmin = conf.low, xmax = conf.high),
+                   position = position_dodge(width = 0.5), linewidth = 0.6) +
+    geom_point(size = 4, position = position_dodge(width = 0.5)) +
+    scale_colour_manual(values = grp_colors) +
+    scale_shape_manual(values  = grp_shapes) +
+    labs(x = paste0("Coefficient (", OUTCOME_LABEL, ")"),
+         y = NULL, colour = NULL, shape = NULL) +
+    theme_minimal(base_size = 16) +
+    theme(panel.grid.major.y = element_blank(),
+          panel.grid.minor   = element_blank(),
+          legend.position    = "top")
+}
+
+plot_endow_detail <- function() {
+  ggplot(endow_df,
+         aes(x = contribution,
+             y = fct_reorder(variable, contribution),
+             fill = contribution >= 0)) +
+    geom_col(width = 0.6, show.legend = FALSE) +
+    geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.4) +
+    geom_text(aes(label = sprintf("%+.3f", contribution),
+                  hjust = if_else(contribution >= 0, -0.15, 1.15)),
+              size = 4.5) +
+    scale_fill_manual(values = c("TRUE" = GROUP_COLORS[1],
+                                 "FALSE" = GROUP_COLORS[2])) +
+    scale_x_continuous(expand = expansion(mult = 0.3)) +
+    labs(x = paste0("Contribution to ", OUTCOME_LABEL, " gap"), y = NULL) +
+    theme_minimal(base_size = 16) +
+    theme(panel.grid.major.y = element_blank(),
+          panel.grid.minor   = element_blank())
+}
+```
+
+## Overview {.h2center}
+
+<br>
+
+### [Concentration Index Decomposition]{.black}
+
+<br>
+
+### [Kitagawa-Blinder-Oaxaca Decomposition]{.black}
+
+## Overview of Decomposition Techniques
+
+:::::: columns
+::: {.column width="45%"}
+<br>
+
+### Today:
+
+-   Inequality decomposition: Concentration Index
+-   Decomposing two-group differences: Kitagawa-Blinder-Oaxaca
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="50%"}
+<br>
+
+### Not covered here:
+
+-   Life table decomposition
+-   Effect decomposition (i.e., mediation)
+-   Decomposition of population rates
+-   Inequality decomposition for nominal social groups
+:::
+::::::
+
+## Moving from Description to Explanation
+
+<br>
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+-   Ultimately, we want to know why health inequalities are changing over time—what changed?
+
+    -   Risk factors?
+    -   Demographic composition?
+    -   Social conditions?
+
+-   Unpacking the 'components' of health inequality is an opportunity to better integrate the monitoring of health inequalities with the etiology of health inequalities.
+
+-   These techniques often involve various kinds of 'counterfactual' scenarios
+:::
+:::::
+
+## Overview {.h2center}
+
+<br>
+
+### [Concentration Index Decomposition]{.black}
+
+<br>
+
+### [Kitagawa-Blinder-Oaxaca Decomposition]{.gray}
+
+## 
+
+We want to understand this:
+
+```{r, out.width="50%"}
+knitr::include_graphics(here("images", "inc-health-dag.png"))
+```
+
+## 
+
+We want to understand this:
+
+```{r, out.width="50%"}
+knitr::include_graphics(here("images", "inc-health-dag.png"))
+```
+
+By evaluating something like this:
+
+```{r, out.width="60%"}
+knitr::include_graphics(here("images", "rci-arrows.png"))
+```
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Relative Concentration Curve
+:::
+
+::: {.column width="75%"}
+```{r, fig.height=6, fig.width = 8.5}
+knitr::include_graphics(here("images", "conc-curve.png"))
+```
+:::
+:::::
+
+## Formula for writing the Concentration Index
+
+::: columns
+::: {.column width="45%"}
+
+Recall that we can write the CI as:
+
+$$RCI= \frac{2}{n\mu} \sum_{i=1}^{n}y_{i}R_{i}-1$$
+
+where
+
+-   $\mu$ is the mean of $y_{i}$ (e.g., smoking);
+-   $R_{i}$ is the fractional rank of the *i*th person in the socioeconomic (i.e., income) distribution.
+:::
+
+::: {.column width = "5%"}
+:::
+
+::: {.column width = "45%"}
+
+*Decomposition*:
+
+-   The basic idea here is to develop a [model for predicting $y$]{.blue} using several determinants, then plug that model back into the equation for the $RCI$
+-   This allows us to estimate how much of the overall inequality in $y$ is due to the association between income and other factors that predict health, and how much is 'unexplained' by these factors.
+:::
+:::
+
+::: footnote
+@kakwani1997
+:::
+
+## Decomposition of the RCI
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+Since the $RCI$ is a function of health $(y_{i})$ and a socioeconomic rank variable $(R_{i})$, i.e. $$RCI= \frac{2}{n\mu} \sum_{i=1}^{n}{\color{red}{y_{i}}}R_{i}-1$$
+
+Then suppose that one can write a regression equation expressing the health outcome of interest $(y_{i})$ as a function of several $k_{i}$ determinants (e.g., age, gender, urban/rural status): $$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
+:::
+:::::
+
+::: footnote
+@wagstaff2003
+:::
+
+## Decomposition of the RCI
+
+::: left-column
+:::
+
+::: right-column
+Since *RCI* is a function of $y_{i}$ and socioeconomic rank, one can then re-express the relative concentration index as:
+
+$$RCI=\sum{(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}}+gRCI_{e}/\mu$$
+
+Where
+
+-   $\mu$ is the mean of $y$,
+-   $\bar{x}_{k}$ is the mean of determinant $x_{k}$,
+-   $\beta_{k}$ is the regression coefficient for $x_{k}$, and
+-   $RCI_{k}$ is the relative concentration index for $x_{k}$.
+
+The basic idea: how much of the overall inequality is due to other factors that are both differentially distributed by $x$ (income) and also affect $y$ (e.g., smoking)?
+:::
+
+## Explained and unexplained components
+
+<br>
+
+This equation results in 2 components of socioeconomic inequality:
+
+$$RCI=\sum{(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}}+gRCI_{e}/\mu$$
+
+:::::: columns
+::: {.column width="45%"}
+One part $(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}$ that is due to the association between:
+
+-   determinants that predict health (i.e., $\beta_{k}\bar{x}_{k}/\mu$); and
+-   the systematic variation in these determinants across income groups (i.e., $RCI_{k}$)
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+The other part $(gRCI_{e}/\mu)$ is 'unexplained', i.e., inequality that cannot be explained by systematic variation across income groups in the determinants of health.
+:::
+::::::
+
+## Two types of 'explained' components
+
+::::: columns
+::: {.column width="50%"}
+```{r, out.width="80%"}
+knitr::include_graphics(here("images", "inc-health-dag.png"))
+```
+
+<br>
+
+```{r, out.width="80%"}
+knitr::include_graphics(here("images", "rci-arrows-color.png"))
+```
+:::
+
+::: {.column width="50%"}
+The influence of determinants depends on two things:
+
+1.  the strength of the relationship between each factor and income
+
+### $\color{blue}{RCI_{k}}$
+
+2.  the strength of the relationship between each factor and health, and its prevalence in the population (elasticity).
+
+### $\color{red}{\beta_{k}\bar{x}_{k}/\mu}$
+:::
+:::::
+
+## Procedure for decomposing the Concentration Index
+
+<br>
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+1.  Estimate a regression equation predicting $y$ ('health') from its determinants $(\beta_{k}x_{k})$:
+
+$$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
+
+2.  Calculate the mean of $y$ $(\mu)$ and of each of the $x_{k}$ determinants (e.g., education, age)
+
+3.  Calculate the overall Concentration Index for the health variable ($CI$) *and* for each determinant in the equation predicting health $(CI_{k})$. This means using each determinant $x_{k}$ as the "outcome" and estimate a $CI$ for age, $CI$ for education, etc.
+:::
+:::::
+
+## Procedure for decomposing the Concentration Index
+
+<br>
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+4.  Calculate the absolute contribution of each determinant by multiplying its 'elasticity' by its concentration index $(CI_{k})$:
+
+$$(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}$$
+
+5.  Calculate the percentage contribution of each determinant:
+
+$$[(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}]/RCI$$
+:::
+:::::
+
+## Example: Decomposing Socioeconomic Inequality in Current Smoking {.center .h2center}
+
+## Data: European Social Survey Round 11 for Sweden
+
+::: {style="font-size: 0.8em"}
+```{r}
+ess_smk <- readRDS(here("data", "ess11-smk.rds"))
+
+ess_smk |>
+  set_variable_labels(
+    smoke    = "Current smoker",
+    inc_dec  = "Income decile",
+    age      = "Age (years)",
+    low_ed   = "Low education (ISCED 1–4)",
+    female   = "Female",
+    binge_mo = "Binge drinking (monthly+)",
+    hi_bmi   = "Obese (BMI ≥ 30)",
+    married  = "Married",
+    wt       = "Survey weight"
+  ) |>
+  datasummary_skim()
+```
+:::
+
+## 
+
+```{r}
+smoke_by_dec <- readRDS(here("data", 
+  "smoke-inc-se.rds"))
+
+ggplot(smoke_by_dec,
+  aes(x = factor(inc_dec), y = pct_smoke)) +
+  geom_col(fill = "#2166ac", width = 0.7) +
+  geom_text(aes(label = sprintf("%.1f%%", pct_smoke)),
+            vjust = -0.4, size = 3.8) +
+  scale_y_continuous(
+    labels = scales::label_number(suffix = "%"),
+    expand = expansion(mult = c(0, 0.12))
+  ) +
+  labs(
+    title    = "Smoking Prevalence by Income Decile",
+    subtitle = glue::glue("ESS Round 11 · Sweden · n = 1162 · Overall smoking rate = 7.3% "),
+    x        = "Income decile (1 = lowest, 10 = highest)",
+    y        = "% current smokers"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title       = element_text(face = "bold"),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor   = element_blank()
+  )
+```
+
+::: footnote
+Source: Author's calculations
+:::
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Concentration curve for smoking
+
+Overall CI = -0.20
+
+The poorest 50% of the population accounts for around 70% of current smokers.
+:::
+
+::: {.column width="75%"}
+```{r, fig.width=8.5, fig.height=6}
+ci_obj <- ci(
+  ineqvar = ess_smk$inc_dec,
+  outcome  = ess_smk$smoke,
+  weights  = ess_smk$wt,
+  type     = "CIw"
+)
+
+ci_val  <- ci_obj$concentration_index   # scalar CI estimate
+ci_bounds <- confint(ci_obj)
+ci_lo   <- ci_bounds[1]                 # 95% CI lower
+ci_hi   <- ci_bounds[2]                 # 95% CI upper
+
+# Build the concentration curve data manually:
+#   rank respondents by income decile (weighted fractional rank)
+#   then compute cumulative share of smoking vs. cumulative share of population
+curve_data <- ess_smk |>
+  arrange(inc_dec) |>
+  mutate(
+    # Weighted fractional rank: cumulative weight up to midpoint of observation
+    r = (cumsum(wt) - wt / 2) / sum(wt)
+  ) |>
+  arrange(r) |>
+  mutate(
+    cum_pop   = cumsum(wt) / sum(wt),
+    cum_smoke = cumsum(smoke * wt) / sum(smoke * wt)
+  ) |>
+  bind_rows(tibble(cum_pop = 0, cum_smoke = 0, r = NA_real_)) |>
+  arrange(cum_pop)
+
+# CI annotation label
+ci_label <- sprintf(
+  "CIw = %.3f\n(95%% CI: %.3f, %.3f)",
+  ci_val, ci_lo, ci_hi
+)
+
+ggplot(curve_data, aes(x = cum_pop, y = cum_smoke)) +
+  # Line of equality
+  geom_abline(slope = 1, intercept = 0,
+              colour = "grey50", linetype = "dashed", linewidth = 0.6) +
+  # Concentration curve
+  geom_line(colour = "#2166ac", linewidth = 1.1) +
+  # Shade area between curve and diagonal
+  geom_ribbon(aes(ymin = cum_smoke, ymax = cum_pop),
+              fill = "#2166ac", alpha = 0.12) +
+  # CI text annotation
+  annotate("text", x = 0.2, y = 0.85,
+           label = ci_label, hjust = 0, size = 4.2,
+           colour = "#2166ac", fontface = "bold", family = "sans") +
+  scale_x_continuous(labels = scales::percent_format(),
+                     breaks = seq(0, 1, 0.25), expand = c(0, 0)) +
+  scale_y_continuous(labels = scales::percent_format(),
+                     breaks = seq(0, 1, 0.25), expand = c(0, 0)) +
+  labs(
+    title    = "Concentration Curve: Current Smoking by Income Decile",
+    subtitle = glue::glue("ESS Round 11 · SE · n = {nrow(ess_smk)}"),
+    x        = "Cumulative share of population (ranked by income decile)",
+    y        = "Cumulative share of smokers"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title    = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    aspect.ratio  = 1
+  )
+```
+:::
+:::::
+
+## Predictors of current smoking: Sweden
+
+```{r}
+library(tibble)
+
+smoke_model <- tribble(
+  ~Variable,                    ~OR,   ~CI_lo, ~CI_hi, ~p,
+  "Age (years)",               0.999,   0.987,  1.011,  "0.906",
+  "Female",                    1.152,   0.726,  1.829,  "0.547",
+  "Low education (ISCED 1–4)", 1.432,   0.902,  2.275,  "0.130",
+  "Married",                   0.372,   0.213,  0.650,  "<0.001",
+  "Binge drinking (monthly+)", 1.463,   0.921,  2.323,  "0.107",
+  "Obese (BMI ≥ 30)",          1.640,   0.900,  2.988,  "0.106"
+) |>
+  mutate(
+    beta = log(OR),
+    ci   = sprintf("(%.2f, %.2f)", CI_lo, CI_hi)
+  ) |>
+  select(Variable, beta, OR, ci, p)
+
+colnames(smoke_model) <- c("Variable", "β", 
+  "OR", "95% CI", "p")
+
+tt(smoke_model,
+   width = 0.9) |>
+  format_tt(j = 2:3, digits = 3, num_fmt = "decimal") |>
+  style_tt(j = 2:5, align = "r") |>
+  style_tt(j = 1,   align = "l") |>
+  style_tt(i = 3,   bold = TRUE)
+```
+
+::: footnote
+This is Step (1): Estimate a regression equation predicting $y$ ('health') from its determinants $(\beta_{k}x_{k})$
+:::
+
+## Should we include income in the regression?
+
+::: columns
+::: {.column width = "20%"}
+:::
+
+::: {.column width="80%"}
+Note that income decile (the *ranking variable*) is excluded from the regression.
+
+This is deliberate, since including it can be **misleading**:
+
+> "the residual component will be zero, or close to zero, suggesting that we have explained all or most of the variation in the Concentration Index"
+
+Excluding it means the residual will:
+
+-   Capture unexplained income-related variation
+-   Allow for a direct income → smoking pathway
+-   Not artificially inflate the "explained" share
+
+The appropriate interpretation is that the covariates in the model account for part of the income gradient in smoking, and the rest remains either directly attributable to income or unexplained by the observed determinants.
+:::
+
+:::::
+
+::: footnote
+See @kessels2013 and @erreygers2016
+:::
+
+## Estimation for a specific factor: Education
+
+::::: columns
+::: {.column width="20%"}
+:::
+
+::: {.column width="80%"}
+$$RCI=\sum{(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}}+gRCI_{e}/\mu$$
+
+-   Estimated $\beta$ coeff on low education (logit scale): 0.359 (OR = 1.43)
+-   Marginal effect on probability scale: 0.024 (2.4 pct points)
+-   Mean low education: 0.452
+-   Mean smoking rate: 7.3%
+
+With these parameters, the elasticity of smoking with respect to low education is: (0.024 \* 0.452 / .073) = 0.148
+
+Interpretation: a 1% increase in low education increases smoking by 14.8% (not percentage points!).
+
+What about the RCI for low education?
+:::
+:::::
+
+::: footnote
+This is Step (2): Calculate the mean of $y$ $(\mu)$ and of each of the $x_{k}$ determinants
+:::
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Concentration curve for low education
+
+Note the y-axis is cumulative share of *low education*
+
+The poorest 50% account for roughly 60% of the share of low educated.
+:::
+
+::: {.column width="75%"}
+```{r, fig.width=8.5, fig.height=6}
+educ_curve_data <- readRDS(here("data", 
+  "rci-educ.rds"))
+
+educ_ci_label <- sprintf(
+  "CIw = %.3f\n(95%% CI: %.3f, %.3f)",
+  -0.2652, -0.3322, -0.1983
+)
+
+ggplot(educ_curve_data, 
+  aes(x = cum_pop, y = cum_educ)) +
+  geom_abline(slope = 1, intercept = 0,
+              colour = "grey50", linetype = "dashed", linewidth = 0.6) +
+  geom_line(colour = "#d6604d", linewidth = 1.1) +
+  geom_ribbon(aes(ymin = cum_pop, ymax = cum_educ),
+              fill = "#d6604d", alpha = 0.12) +
+  annotate("text", x = 0.05, y = 0.80,
+    label = educ_ci_label, hjust = 0, size = 4.2,
+           colour = "#d6604d", fontface = "bold", family = "sans") +
+  scale_x_continuous(labels = scales::percent_format(),
+    breaks = seq(0, 1, 0.25), expand = c(0, 0)) +
+  scale_y_continuous(labels = scales::percent_format(),
+    breaks = seq(0, 1, 0.25), expand = c(0, 0)) +
+  labs(
+    title    = "Concentration Curve: Low education by Income Decile",
+    subtitle = glue::glue("ESS Round 11 · SE · n = 1162"),
+    x        = "Cumulative share of population (ranked by income decile)",
+    y        = "Cumulative share of low education"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title       = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    aspect.ratio     = 1
+  )
+```
+:::
+:::::
+
+::: footnote
+This is Step (3): Calculate the $CI$ for each of the potential determinants $x_{k}$
+:::
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Estimation for a specific factor: Low education
+:::
+
+::: {.column width="75%"}
+Recall the decomposition formula:
+
+$$RCI=\sum{(\color{red}{\beta_{k}\bar{x}_{k}/\mu})\color{blue}{RCI_{k}}}+gRCI_{e}/\mu$$
+
+So the [elasticity of smoking]{.red} (from the previous slide) with respect to low education is (0.024 \* 0.452 / .073) = 0.148
+
+Now we have the [RCI for low education]{.blue} = -0.265
+
+So now we can calculate the contribution of low education as:
+
+$$\text{Elasticity}\times RCI_{ed} = 0.148 * -0.265 = -.039$$
+
+**Thus low education accounts for -.039/ -0.203 = 19% of the overall** $RCI$
+:::
+:::::
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+Decomposition of Income-Related Inequality in Smoking: Sweden
+
+Overall RCI = -0.203
+
+Contributions of each factor can be positive or negative
+:::
+
+::: {.column width="75%"}
+```{r}
+ci_decomp <- readRDS(here("data", "ess-decomp.rds")) |>
+  select(group, elasticity, ci_k, abs_contrib, pct_contrib)
+
+colnames(ci_decomp) <- c("Variable", "Elasticity",
+  "CI_k", "Absolute", "%")
+
+tt(ci_decomp, digits = 3,
+   notes = "Logistic regression; marginal effects used as elasticity weights.") |>
+  format_tt(j = 2:5, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  group_tt(j = list("Contribution" = 4:5)) |>
+  style_tt(j = 1, align = "l") |>
+  style_tt(j = 2:5, align = "r")
+```
+
+-   Binge drinking contribution is negative since it increases smoking but is more common among higher income.
+-   Married contribution is positive since it decreases smoking but is more common among higher income.
+:::
+:::::
+
+## Uncertainty in the RCI Decomposition
+
+::::: columns
+::: {.column width="35%"}
+Each contribution is a product of two estimated quantities:
+
+$$\underbrace{\frac{\hat{\beta}_k \bar{x}_k}{\hat{\mu}}}_{\text{elasticity}} \times \underbrace{\widehat{RCI}_k}_{\text{inequality in }x_k}$$
+
+Both carry sampling variability — so do the contributions.
+
+**Bootstrap** resamples the full dataset and re-runs the decomposition $B$ times to get empirical CIs.
+:::
+
+::: {.column width="65%"}
+```{r}
+knitr::include_graphics(here("figs", "ess11_decomp_bar.png"))
+```
+:::
+:::::
+
+::: footnote
+@odonnell2008; @hosseinpoor2006
+:::
+
+## Caveats for decomposing the RCI
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+Decomposition results will be sensitive to the choice of determinants included (i.e., how well-specified the model is for predicting $y$).
+
+<br>
+
+The regression equations are predictive and not causal models.
+
+<br>
+
+Main utility is not in estimating the potential impact on $y$ of changing the distribution of socioeconomic position, but in indicating the potential role that other factors may play in generating socioeconomic inequalities in health.
+:::
+:::::
+
+## Overview {.h2center}
+
+<br>
+
+### [Concentration Index Decomposition]{.gray}
+
+<br>
+
+### [Kitagawa-Blinder-Oaxaca Decomposition]{.black}
+
+## Idea for Decomposition of Means
+
+:::::: columns
+::: {.column width="45%"}
+<br>
+
+The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
+
+Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+<br>
+
+Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
+
+"Unpacking" or "decomposing" difference.
+:::
+::::::
+
+## Origins
+
+::::: columns
+::: {.column width="25%"}
+```{r}
+knitr::include_graphics(here("images", "kitagawa-title.png"))
+```
+:::
+
+::: {.column width="75%"}
+Evelyn Kitagawa [-@kitagawa1955] was a sociologist and demographer who devised a non-parametric method for decomposing differences between rates, refined by Prithwis das Gupta in 1978.
+
+-   Focused on understanding group contributions to rate differences.
+
+Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
+
+-   Focused on how much of wage gap was 'explained' by differences in observable characteristics
+:::
+:::::
+
+## Brief note on interpretation
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+Decomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.
+
+<br>
+
+If regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.
+
+<br>
+
+If data allow identification of causal effects, then the factors that generate the inequality are identified.
+
+<br>
+
+Then one can (potentially) draw conclusions about how policies would impact on inequality.
+:::
+:::::
+
+::: footnote
+@odonnell2008
+:::
+
+## 
+
+```{r, out.width="65%"}
+knitr::include_graphics(here("images", 
+  "decomp-ex-spain.png"))
+```
+
+::: footnote
+[@jiménez-rubio2010]
+:::
+
+## Kitagawa-Blinder-Oaxaca: Basic Idea
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+### [Two potential sources of mean differences in outcomes]{.black}
+
+### 1. Means
+
+#### [Differences in the prevalence of determinants of outcome]{.black}
+
+<br>
+
+### 2. Coefficients
+
+#### [Differences in the coefficient of a given determinant on the outcome (i.e., effect measure modification)]{.black}
+:::
+:::::
+
+## Regression reproduces the mean
+
+```{r, fig.width=14, fig.height=5}
+set.seed(42)
+n <- 120
+
+# Two groups with different x means AND different slopes
+x1 <- rnorm(n, mean = 3.5, sd = 1)
+y1 <- 1.0 + 0.5 * x1 + rnorm(n, sd = 0.8)
+
+x2 <- rnorm(n, mean = 5.5, sd = 1)
+y2 <- 0.5 + 0.9 * x2 + rnorm(n, sd = 0.8)
+
+df_sim <- bind_rows(
+  tibble(x = x1, y = y1, group = "Unexposed"),
+  tibble(x = x2, y = y2, group = "Exposed")
+)
+
+fits <- df_sim |>
+  group_by(group) |>
+  group_modify(~ broom::tidy(lm(y ~ x, data = .x))) |>
+  select(group, term, estimate) |>
+  pivot_wider(names_from = term, values_from = estimate) |>
+  rename(alpha = `(Intercept)`, beta = x)
+
+means <- df_sim |>
+  group_by(group) |>
+  summarise(xbar = mean(x), ybar = mean(y), .groups = "drop") |>
+  left_join(fits, by = "group")
+
+grp_colors <- c("Unexposed" = "#4393c3", "Exposed" = "#d6604d")
+
+# Panel A: single group showing (x̄, ȳ) on the line
+df1 <- filter(df_sim, group == "Unexposed")
+m1  <- filter(means,  group == "Unexposed")
+
+pA <- ggplot(df1, aes(x, y)) +
+  geom_point(alpha = 0.3, size = 2, colour = "#4393c3") +
+  geom_smooth(method = "lm", se = FALSE,
+              colour = "#4393c3", linewidth = 1.2) +
+  geom_segment(aes(x = m1$xbar, xend = m1$xbar,
+                   y = min(df1$y) - 0.2, yend = m1$ybar),
+               linetype = "dashed", colour = "grey30", linewidth = 0.7) +
+  geom_segment(aes(x = min(df1$x) - 0.2, xend = m1$xbar,
+                   y = m1$ybar, yend = m1$ybar),
+               linetype = "dashed", colour = "grey30", linewidth = 0.7) +
+  geom_point(aes(x = m1$xbar, y = m1$ybar),
+             size = 5, colour = "#d6604d") +
+  annotate("text", x = m1$xbar, y = min(df1$y) - 0.35,
+           label = "bar(x)", parse = TRUE,
+           colour = "grey30", size = 5.5, fontface = "bold") +
+  annotate("text", x = min(df1$x) - 0.15, y = m1$ybar,
+           label = "bar(y)", parse = TRUE,
+           colour = "grey30", size = 5.5, fontface = "bold", hjust = 1) +
+  annotate("label", x = m1$xbar + 0.2, y = m1$ybar + 0.6,
+           label = "bar(y)==hat(alpha)+hat(beta)*bar(x)",
+           parse = TRUE, colour = "#d6604d", size = 4.5,
+           label.size = 0.3, fill = "white") +
+  labs(title = "OLS line passes through (x̄, ȳ)",
+       x = "x", y = "y") +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"),
+        panel.grid.minor = element_blank())
+
+# Panel B: two groups — endowments vs coefficients
+pred_line <- bind_rows(
+  tibble(group = "Unexposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Unexposed")$alpha +
+               filter(fits, group == "Unexposed")$beta * x),
+  tibble(group = "Exposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Exposed")$alpha +
+               filter(fits, group == "Exposed")$beta * x)
+)
+
+# Counterfactual: unexposed coefficients evaluated at exposed x̄
+m_exp <- filter(means, group == "Exposed")
+m_unexp <- filter(means, group == "Unexposed")
+y_cf <- m_unexp$alpha + m_unexp$beta * m_exp$xbar   # unexposed betas, exposed means
+
+pB <- ggplot(df_sim, aes(x, y, colour = group)) +
+  geom_point(alpha = 0.2, size = 2) +
+  geom_line(data = pred_line, aes(x, y, colour = group), linewidth = 1.2) +
+  # vertical lines at each group's x̄
+  geom_vline(xintercept = m_unexp$xbar, linetype = "dashed",
+             colour = grp_colors["Unexposed"], linewidth = 0.7) +
+  geom_vline(xintercept = m_exp$xbar,   linetype = "dashed",
+             colour = grp_colors["Exposed"],   linewidth = 0.7) +
+  # actual group means on their own lines
+  geom_point(data = means, aes(x = xbar, y = ybar, colour = group),
+             size = 5, show.legend = FALSE) +
+  # counterfactual point
+  geom_point(aes(x = m_exp$xbar, y = y_cf),
+             colour = "grey30", size = 4, shape = 17) +
+  # arrows showing decomposition
+  annotate("segment",
+           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
+           y = y_cf, yend = m_exp$ybar,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#9e3a14", linewidth = 0.8) +
+  annotate("segment",
+           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
+           y = m_unexp$ybar, yend = y_cf,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#1a5276", linewidth = 0.8) +
+  annotate("label", x = m_exp$xbar + 0.25, y = (y_cf + m_exp$ybar) / 2,
+           label = "Coefficients", colour = "#9e3a14",
+           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
+  annotate("label", x = m_exp$xbar + 0.25, y = (m_unexp$ybar + y_cf) / 2,
+           label = "Endowments", colour = "#1a5276",
+           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
+  scale_colour_manual(values = grp_colors) +
+  labs(title = "Gap = endowments + coefficients",
+       x = "x", y = "y", colour = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title  = element_text(face = "bold"),
+        panel.grid.minor = element_blank(),
+        legend.position = "top")
+
+pA + pB
+```
+
+::: footnote
+Left: OLS regression line always passes through $(\bar{x}, \bar{y})$ because residuals sum to zero. Right: the gap in group means decomposes into **endowments** (different $\bar{x}$, same coefficients — grey triangle to blue dot) and **coefficients** (same $\bar{x}$, different slopes/intercepts — grey triangle to red dot).
+:::
+
+## 
+
+### Two ways of expressing the mean difference in $y$
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+The overall gap between exposed and unexposed can be written as a function of differences the respective beta coefficients, evaluated at the mean for each group:
+
+```{r}
+knitr::include_graphics(here("images", "kbo-two-ways.png"))
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+::::: columns
+::: {.column width="25%"}
+### First method
+
+-   Coefficients of unexposed
+
+-   Means of exposed
+:::
+
+::: {.column width="75%"}
+$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{unexp}-\Delta\beta x^{exp}$
+
+```{r}
+knitr::include_graphics(here("images", "kbo-first-method.png"))
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+::::: columns
+::: {.column width="25%"}
+### Second method
+
+-   Coefficients of exposed
+
+-   Means of unexposed
+:::
+
+::: {.column width="75%"}
+$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{exp}-\Delta\beta x^{unexp}$
+
+```{r}
+knitr::include_graphics(here("images", "kbo-second-method.png"))
+```
+:::
+:::::
+
+## The two methods are equally valid
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+In the first, the differences in the $X$s are weighted by the [coefficients of the unexposed group]{.red} and the differences in the coefficients are weighted by the $X$s of the exposed group: $$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{unexp}-\Delta\beta x^{exp}$$
+
+whereas, in the second, the differences in the $X$s are weighted by the [coefficients of the exposed group]{.blue} and the differences in the coefficients are weighted by the $X$s of the unexposed group: $$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{exp}-\Delta\beta x^{unexp}$$
+
+See @oaxaca1973, @blinder1973 and @cotton1988a for details.
+:::
+:::::
+
+## Example: Decomposing Educational Differences in BMI in Italy
+
+<br>
+
+::::: columns
+::: {.column width="25%"}
+<br>
+:::
+
+::: {.column width="75%"}
+### Basic question
+
+<br>
+
+What is the average difference in body mass index (BMI) between those with low vs. high education?
+
+<br>
+
+How much of this difference is due to the fact that determinants of BMI (age, gender, smoking, drinking, income) *differ* between education groups?
+
+<br>
+
+Any residual difference is due to education differences in the *associations* between those risk factors and BMI — i.e., the coefficients differ.
+:::
+:::::
+
+## Example data
+
+European Social Survey Round 11, Italy (n = `r nrow(ess_kbo)`)
+
+Body mass index as outcome (kg/m²): `weight / height²`
+
+Overall difference by education: `r GROUP_1` (ISCED 5–7) vs `r GROUP_2` (ISCED 1–4)
+
+Potential determinants (the Xs):
+
+-   age (years)
+-   gender (female = 1)
+-   smoking (1 = current smoker)
+-   binge drinking (1 = monthly or more)
+-   married (1 = currently married)
+-   income decile (1–10)
+
+## BMI distribution by education (High ed: 23.6, Low ed: 25.2, Gap = 1.6)
+
+```{r out.width="75%"}
+knitr::include_graphics(here("figs", "ess11_IT_bmi_low_ed_density.png"))
+```
+
+## Differences in determinants
+
+::::: columns
+::: {.column width="20%"}
+-   Low-educated Italians differ from high-educated on several covariates
+
+-   These differences could explain part of the BMI gap
+:::
+
+::: {.column width="80%"}
+```{r fig.height=5}
+knitr::include_graphics(here("figs", "ess11_IT_bmi_low_ed_means.png"))
+```
+:::
+:::::
+
+## Differences in coefficients
+
+::::: columns
+::: {.column width="20%"}
+-   Each covariate may have a different association with BMI by education
+
+-   Differences in *returns* form the unexplained component
+:::
+
+::: {.column width="80%"}
+```{r fig.height=5}
+knitr::include_graphics(here("figs", "ess11_IT_bmi_low_ed_coefs.png"))
+```
+:::
+:::::
+
+## Decomposition results: the gap {visibility="hidden"}
+
+```{r}
+#| fig-height: 6
+tt_decomp(show_cols = 1, hi_section = "overall")
+```
+
+`r GROUP_2` BMI = `r round(ybar_2, 2)` kg/m², `r GROUP_1` BMI = `r round(ybar_1, 2)` kg/m², **gap = `r round(gap, 2)`**
+
+## Decomposition results: `r GROUP_2` betas {visibility="hidden"}
+
+```{r}
+tt_decomp(show_cols = 1, hi_section = "endow")
+```
+
+Using `r GROUP_2` betas as reference — endowments account for **`r round(100 * decomp_tbl$g2_est[decomp_tbl$section == "endow_tot"] / gap, 1)`%** of the gap
+
+## Decomposition results: adding `r GROUP_1` betas {visibility="hidden"}
+
+```{r}
+tt_decomp(show_cols = 2, hi_section = "endow")
+```
+
+Endowments shift slightly with choice of reference betas — the difference between columns **is** the interaction
+
+## Decomposition results: coefficients {visibility="hidden"}
+
+```{r}
+tt_decomp(show_cols = 2, hi_section = "coef")
+```
+
+Coefficients component is larger than endowments — most of the BMI gap reflects differences in *associations*, not just composition
+
+## Decomposition results: pooled {visibility="hidden"}
+
+```{r}
+tt_decomp(show_cols = 3, hi_section = NULL)
+```
+
+Pooled (Cotton) betas give a symmetric reference — no interaction term; the three columns bracket the range of plausible decompositions
+
+## Decomposition results: variable contributions
+
+Endowments: 38%; Coefficients: 62%
+
+```{r}
+#| label: decomp-wide-table
+# Wide table: one row per variable, endowments and coefficients side-by-side
+# Using GROUP_2 betas as reference
+e_rows <- decomp_tbl[decomp_tbl$section %in% c("endow_tot", "endow_var"), ]
+c_rows <- decomp_tbl[decomp_tbl$section %in% c("coef_tot",  "coef_var"), ]
+# Add blank intercept row to endowments so row counts match
+intercept_blank <- e_rows[1, ]; intercept_blank$label <- "Intercept"
+intercept_blank$g2_est <- NA; intercept_blank$g2_se <- NA
+intercept_blank$section <- "endow_var"; intercept_blank$bold <- FALSE
+e_rows <- rbind(e_rows, intercept_blank)
+
+disp <- data.frame(
+  Label = c_rows$label,  # same variables appear in same order
+  e_est = e_rows$g2_est,
+  e_se  = e_rows$g2_se,
+  c_est = c_rows$g2_est,
+  c_se  = c_rows$g2_se
+)
+disp$Label[c_rows$section %in% c("endow_var", "coef_var")] <-
+  paste0("   ", disp$Label[c_rows$section %in% c("endow_var", "coef_var")])
+
+disp$Label[disp$Label %in% c("Endowments", "Coefficients")] <- "Total"
+bold_rows <- which(c_rows$bold)
+
+tt(disp, width = 0.9) |>
+  style_tt(fontsize = 0.9) |>
+  format_tt(j = 2:5, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  group_tt(j = list(" " = 1, "Endowments" = 2:3, "Coefficients" = 4:5)) |>
+  setNames(c("", "Est", "SE", "Est", "SE")) |>
+  style_tt(j = 1,   align = "l") |>
+  style_tt(j = 2:5, align = "r") |>
+  style_tt(i = bold_rows, bold = TRUE)
+```
+
+`r GROUP_2` betas used as reference; rows show each variable's contribution to the overall gap of `r round(gap, 2)` kg/m²
+
+## Decomposition results: summary
+
+Endowments: 38%; Coefficients: 62%
+
+:::::: columns
+::: {.column width="45%"}
+```{r}
+e_rows <- decomp_tbl[decomp_tbl$section %in% c("endow_tot", "endow_var"), ]
+
+disp <- data.frame(
+  Label = e_rows$label,
+  e_est = e_rows$g2_est,
+  e_se  = e_rows$g2_se
+)
+disp$Label[e_rows$section == "endow_var"] <-
+  paste0("   ", disp$Label[e_rows$section == "endow_var"])
+disp$Label[disp$Label == "Endowments"] <- "Total"
+bold_rows <- which(e_rows$bold)
+
+tt(disp, width = 1) |>
+  format_tt(j = 2:3, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  group_tt(j = list(" " = 1, "Endowments" = 2:3)) |>
+  setNames(c("", "Est", "SE")) |>
+  style_tt(j = 1,   align = "l") |>
+  style_tt(j = 2:3, align = "r") |>
+  style_tt(i = bold_rows, bold = TRUE) |>
+  style_tt(i = 1, j = 2, background = "#d9ead3")
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+Interpretation:
+
+-   If the low-educated had the same covariate means as the high-educated (keeping the low-educated group's own coefficients), their BMI would be 0.608 $kg/m^2$ lower — closing 38% of the gap.
+
+-   Most of this is due to older age among the low-educated, which predicts higher BMI.
+:::
+::::::
+
+## Decomposition results: coefficients
+
+Endowments: 38%; Coefficients: 62%
+
+::::: columns
+:::: {.column width="45%"}
+Interpretation:
+
+-   If the high-educated group's covariates had the same relationship with BMI as they do in the low-educated group (i.e., if low-ed coefficients applied to high-ed covariate means), their BMI would be 1.030 higher, accounting for 62% of the gap.
+
+-   Note smoking is negative, since smoking predicts higher BMI among the high-educated and is more common among high educated.
+::::
+:::: {.column width="5%"}
+::::
+
+::: {.column width="45%"}
+```{r}
+c_rows <- decomp_tbl[decomp_tbl$section %in% c("coef_tot", "coef_var"), ]
+
+disp <- data.frame(
+  Label = c_rows$label,
+  c_est = c_rows$g2_est,
+  c_se  = c_rows$g2_se
+)
+disp$Label[c_rows$section == "coef_var"] <-
+  paste0("   ", disp$Label[c_rows$section == "coef_var"])
+disp$Label[disp$Label == "Coefficients"] <- "Total"
+bold_rows <- which(c_rows$bold)
+
+tt(disp, width = 1) |>
+  format_tt(j = 2:3, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  group_tt(j = list(" " = 1, "Coefficients" = 2:3)) |>
+  setNames(c("", "Est", "SE")) |>
+  style_tt(j = 1,   align = "l") |>
+  style_tt(j = 2:3, align = "r") |>
+  style_tt(i = bold_rows, bold = TRUE) |>
+  style_tt(i = 1, j = 2, background = "#d9ead3")
+```
+::::
+
+:::::
+
+## Which covariates drive the endowments?
+
+::::: columns
+::: {.column width="30%"}
+-   Variables where groups differ *and* that predict BMI contribute most
+
+-   Income and age are the biggest drivers
+:::
+
+::: {.column width="70%"}
+```{r fig.height=6}
+plot_endow_detail()
+```
+:::
+:::::
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Methods frontier
+
+Attempting to reconcile the non-causal framework of KBO with mediation methods, new estimators.
+:::
+
+::: {.column width="75%"}
+```{r}
+knitr::include_graphics(here("images", "jackson-epid-title.png"))
+```
+:::
+:::::
+
+::: footnote
+@jackson2021
+:::
+
+## Summary
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+Various decomposition techniques exist that may be useful for analyzing social determinants of health:
+
+-   Regression-based decomposition of Concentration Index
+-   Oaxaca decomposition of mean health between groups
+
+All of these techniques make assumptions that need to be evaluated in the course of analysis.
+
+When used properly, decomposition techniques can help to provide key evidence on why health inequalities exist and change over time.
+:::
+:::::
+
+## References
+
+::: {#refs}
+:::
