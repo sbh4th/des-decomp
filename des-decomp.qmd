@@ -211,7 +211,7 @@ plot_endow_detail <- function() {
 
 {{< include _plan.qmd >}}
 
-# **1. Kitagawa's Decomposition** {#kitagawa}
+# 1. Kitagawa's Decomposition {#kitagawa}
 
 ## 
 
@@ -268,30 +268,33 @@ Seminal paper by @kitagawa1955
 :::
 ::::::
 
-## Moving from Description to Explanation
+## Decomposition: from description to explanation {.vcenter}
 
-<br>
+::: {.roomy}
+::: {.msg-list}
+::: {.msg-item}
 
-::::: columns
-::: {.column width="25%"}
+**What changed?**\
+Explaining growing or shrinking gaps
 :::
 
-::: {.column width="75%"}
-- Ultimately, we want to know why health inequalities are changing over time—what changed?
-
-  - Risk factors?
-  - Demographic composition?
-  - Social conditions?
-
-- Unpacking the 'components' of health inequality is an opportunity to better integrate the monitoring of health inequalities with the etiology of health inequalities.
-
-- These techniques often involve various kinds of 'counterfactual' scenarios
+::: {.msg-item}
+**Which 'components'?**\
+Bridge between descriptive and causal
 :::
-:::::
+
+::: {.msg-item}
+**What if?**\
+Techniques often involve 'counterfactual' scenarios
+:::
+:::
+:::
+
+
 
 {{< include _plan.qmd >}}
 
-# **2. Oaxaca–Blinder Decomposition** {#oaxaca}
+# 2. Oaxaca–Blinder Decomposition {#oaxaca}
 
 ## Kitagawa-Blinder-Oaxaca: Basic Idea
 
@@ -780,7 +783,7 @@ plot_endow_detail()
 
 {{< include _plan.qmd >}}
 
-# **3. Concentration Index Decomposition** {#concentration}
+# 3. Concentration Index Decomposition {#concentration}
 
 ## 
 
@@ -1455,7 +1458,7 @@ knitr::include_graphics(here("images",
 
 {{< include _plan.qmd >}}
 
-# **4. Interventional Decomposition** {#intervention}
+# 4. Interventional Decomposition {#intervention}
 
 ## 
 

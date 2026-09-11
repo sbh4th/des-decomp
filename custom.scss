@@ -73,6 +73,15 @@ $content-margin-left: 33% !default;
 /*-- scss:rules --*/
 
 // -----------------------------------------------------------------------
+// Content-slide titles and subheadings (h2, h3)
+// Bold by browser default, not by any rule here — at 1.3em/1.1em that
+// read too heavy against the McElreath-style serif. Same size, lighter
+// weight. Add [text]{.blue} or wrap in **...** on a case-by-case basis
+// where a heading needs to stand out (e.g. parallel item labels).
+// -----------------------------------------------------------------------
+.reveal h2, .reveal h3 { font-weight: 400; }
+
+// -----------------------------------------------------------------------
 // Inline emphasis spans
 // Use sparingly: color highlights one clause the audience should carry
 // away, not whole slides. Applied as [text]{.blue} etc.
