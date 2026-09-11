@@ -16,6 +16,12 @@ $font-family-sans-serif: "Alegreya", "Georgia", serif !default;
 $presentation-heading-font: $font-family-sans-serif !default;
 $font-family-monospace: "Menlo", "Consolas", monospace !default;
 
+// Quarto's revealjs theme defaults headings to weight 600 — on Alegreya
+// specifically that reads much heavier/blacker than it does on a
+// grotesque sans. Regular weight instead; color + size already carry
+// enough visual weight to read as a heading without also bolding.
+$presentation-heading-font-weight: 400 !default;
+
 // Tabular data (tinytable/gt/modelsummary output, real HTML <table>
 // elements) reads worse in a serif face than prose does — numerals lose
 // the clean vertical alignment a table needs, and 1/l/I, 0/O get harder

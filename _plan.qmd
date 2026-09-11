@@ -1,4 +1,4 @@
-## Plan {.section .vcenter}
+## Covered Today {.section .vcenter}
 
 ::: {.flush}
 ::: {.msg-list}
