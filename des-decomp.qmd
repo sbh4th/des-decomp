@@ -222,28 +222,13 @@ knitr::include_graphics(here("images",
   "kitagawa.png"))
 ```
 
-> If standardization alters a difference between two rates, it should be possible ... to break it up into components attributable to the various factors for which the data were standardized.
+
 :::
 
 ::: {.column width="50%"}
-```{r}
-kita_toy <- data.frame(
-  Age   = c("Young", "Old", "Crude rate", "Standardized rate"),
-  Share = c("30%", "70%", "—", "—"),
-  Rate  = c(10, 20, 17, 16),
-  Share = c("50%", "50%", "—", "—"),
-  Rate  = c(20, 30, 25, 26),
-  check.names = FALSE
-)
-names(kita_toy) <- c("Age", "Share", "Rate", "Share", "Rate")
 
-tt(kita_toy, width = 0.75) |>
-  group_tt(j = list("Group A" = 2:3, "Group B" = 4:5)) |>
-  style_tt(j = 1, align = "l") |>
-  style_tt(j = 2:5, align = "c") |>
-  style_tt(i = 3, line = "t", line_color = "#888888", line_width = 0.4) |>
-  style_tt(i = 3:4, bold = TRUE)
-```
+> If standardization alters a difference between two rates, it should be possible ... to break it up into components attributable to the various factors for which the data were standardized.
+
 :::
 :::::
 
@@ -845,7 +830,27 @@ plot_endow_detail()
 
 # 3. Concentration Index Decomposition {#concentration}
 
-## 
+## We want to understand this:
+
+```{r}
+source(here("code", "dag-income-health-confounders.R"))
+
+node_col <- setNames(rep("white", length(dag_nodes)), dag_nodes)
+node_col[c("Income", "Health")] <- "black"
+
+dag_plot(dag,
+         node_col = node_col,
+         edge_col = c("__default__" = "white", "Income->Health" = "black"),
+         curve = dag_curve, shrink = dag_shrink)
+```
+
+## By evaluating something like this:
+
+```{r}
+dag_plot(dag, curve = dag_curve, shrink = dag_shrink)
+```
+
+##
 
 We want to understand this:
 
