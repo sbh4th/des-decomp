@@ -26,11 +26,11 @@ dag <- dagitty("dag {
 }")
 
 coordinates(dag) <- list(
-  x = c(Education = 1.5, "Urban/rural" = 3.5, Income = 1.5, Health = 4, Gender = 2.8, Age = 1),
+  x = c(Education = 2.5, "Urban/rural" = 3.5, Income = 2.5, Health = 4, Gender = 3.25, Age = 2.5),
   y = c(Education = -1, "Urban/rural" = -1, Income = 1,   Health = 1, Gender = 2.5,   Age = 3)
 )
 
 dag_nodes  <- names(coordinates(dag)$x)
-dag_curve  <- list("Age->Health" = c(1, -1.5))
+dag_curve  <- list("Age->Health" = c(0.5, -1))
 dag_shrink <- 0.2
 

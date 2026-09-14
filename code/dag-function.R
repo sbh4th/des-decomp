@@ -47,13 +47,16 @@ dag_plot <- function(dag, node_col = "black", edge_col = "black",
       dx <- x2 - x1; dy <- y2 - y1
       xs1 <- x1 + shrink * dx; ys1 <- y1 + shrink * dy
       xs2 <- x2 - shrink * dx; ys2 <- y2 - shrink * dy
-      shape::Arrows(xs1, ys1, xs2, ys2, arr.length = 0.22, arr.width = 0.14,
-                    col = col_i, lwd = lwd, arr.adj = 1, arr.type = "curved")
+      shape::Arrows(xs1, ys1, xs2, ys2, 
+        arr.length = 0.22, arr.width = 0.14,
+        col = col_i, lwd = lwd, arr.adj = 1, 
+        arr.type = "curved")
     }
   }
 
   for (l in labels) {
-    text(coords$x[l], y[l], l, cex = cex, col = node_col[[l]], font = 4)
+    text(coords$x[l], y[l], l, cex = cex, 
+         col = node_col[[l]], font = 4)
   }
 
   invisible(list(coords = coords, y = y))

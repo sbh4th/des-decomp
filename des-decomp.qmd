@@ -840,7 +840,8 @@ node_col[c("Income", "Health")] <- "black"
 
 dag_plot(dag,
          node_col = node_col,
-         edge_col = c("__default__" = "white", "Income->Health" = "black"),
+         edge_col = c("__default__" = "white", 
+                      "Income->Health" = "black"),
          curve = dag_curve, shrink = dag_shrink)
 ```
 
@@ -983,6 +984,33 @@ The other part $(gRCI_{e}/\mu)$ is 'unexplained', i.e., inequality that cannot b
 
 ::::: columns
 ::: {.column width="50%"}
+
+<br>
+<br>
+
+```{r}
+dag_plot(dag,
+         node_col = "black",
+         edge_col = c("Education->Health" = "red",
+                      "Education->Income" = "blue"),
+         curve = dag_curve, shrink = dag_shrink)
+```
+         
+:::
+
+::: {.column width="50%"}
+Determinant impact depends on:
+
+1.  the strength of the relationship between each factor and income $\color{blue}{RCI_{k}}$
+
+2.  the strength of the relationship between each factor and health, and its prevalence in the population (elasticity) $\color{red}{\beta_{k}\bar{x}_{k}/\mu}$
+:::
+:::::
+
+## Two types of 'explained' components
+
+::::: columns
+::: {.column width="50%"}
 ```{r, out.width="80%"}
 knitr::include_graphics(here("images", "inc-health-dag.png"))
 ```
@@ -997,13 +1025,10 @@ knitr::include_graphics(here("images", "rci-arrows-color.png"))
 ::: {.column width="50%"}
 The influence of determinants depends on two things:
 
-1.  the strength of the relationship between each factor and income
+1.  the strength of the relationship between each factor and income $\color{blue}{RCI_{k}}$
 
-### $\color{blue}{RCI_{k}}$
+2.  the strength of the relationship between each factor and health, and its prevalence in the population (elasticity) $\color{red}{\beta_{k}\bar{x}_{k}/\mu}$
 
-2.  the strength of the relationship between each factor and health, and its prevalence in the population (elasticity).
-
-### $\color{red}{\beta_{k}\bar{x}_{k}/\mu}$
 :::
 :::::
 
@@ -1016,13 +1041,13 @@ The influence of determinants depends on two things:
 :::
 
 ::: {.column width="75%"}
-1.  Estimate a regression equation predicting $y$ ('health') from its determinants $(\beta_{k}x_{k})$:
+1.  Regress $y$ ('health') on its determinants $(\beta_{k}x_{k})$:
 
 $$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 
-2.  Calculate the mean of $y$ $(\mu)$ and of each of the $x_{k}$ determinants (e.g., education, age)
+2.  Calculate means of $y$ $(\mu)$ and all $x_{k}$ determinants
 
-3.  Calculate the overall Concentration Index for the health variable ($CI$) *and* for each determinant in the equation predicting health $(CI_{k})$. This means using each determinant $x_{k}$ as the "outcome" and estimate a $CI$ for age, $CI$ for education, etc.
+3.  Calculate ($CI$) for the health variable *and* for each determinant $(CI_{k})$. This means using each determinant $x_{k}$ as the "outcome" and estimate a $CI$ for age, $CI$ for education, etc.
 :::
 :::::
 
@@ -1049,7 +1074,7 @@ $$[(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}]/RCI$$
 
 ## Data: European Social Survey Round 11 for Sweden
 
-::: {style="font-size: 0.8em"}
+::: {style="font-size: 0.7em"}
 ```{r}
 ess_smk <- readRDS(here("data", "ess11-smk.rds"))
 
@@ -1183,8 +1208,9 @@ ggplot(curve_data, aes(x = cum_pop, y = cum_smoke)) +
 :::
 :::::
 
-## Predictors of current smoking: Sweden
+## Step 1: Predictors of current smoking
 
+::: {style="font-size: 0.8em"}
 ```{r}
 library(tibble)
 
@@ -1213,10 +1239,8 @@ tt(smoke_model,
   style_tt(j = 1,   align = "l") |>
   style_tt(i = 3,   bold = TRUE)
 ```
-
-::: footnote
-This is Step (1): Estimate a regression equation predicting $y$ ('health') from its determinants $(\beta_{k}x_{k})$
 :::
+
 
 ## Should we include income in the regression?
 
@@ -1387,13 +1411,11 @@ tt(ci_decomp, digits = 3,
 
 ::::: columns
 ::: {.column width="35%"}
-Each contribution is a product of two estimated quantities:
+Each contribution has sampling variability:
 
 $$\underbrace{\frac{\hat{\beta}_k \bar{x}_k}{\hat{\mu}}}_{\text{elasticity}} \times \underbrace{\widehat{RCI}_k}_{\text{inequality in }x_k}$$
 
-Both carry sampling variability — so do the contributions.
-
-**Bootstrap** resamples the full dataset and re-runs the decomposition $B$ times to get empirical CIs.
+Can **bootstrap** the decomp $B$ times to get empirical CIs.
 :::
 
 ::: {.column width="65%"}
@@ -1404,7 +1426,7 @@ knitr::include_graphics(here("figs", "ess11_decomp_bar.png"))
 :::::
 
 ::: footnote
-@odonnell2008; @hosseinpoor2006
+See @odonnell2008; @hosseinpoor2006
 :::
 
 ## Caveats for decomposing the RCI
