@@ -237,7 +237,7 @@ Seminal paper by @kitagawa1955
 
 ```{r}
 kita_toy <- data.frame(
-  Age   = c("Young", "Old", "Crude rate", "Standardized rate"),
+  Age   = c("Young", "Old", "Crude", "Standardized"),
   Share = c("30%", "70%", " ", " "),
   Rate  = c(10, 20, 17, 16),
   Share = c("50%", "50%", " ", " "),
