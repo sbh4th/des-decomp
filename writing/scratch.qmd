@@ -1,17 +1,23 @@
 ---
 title: "scratch"
-format: 
+format:
   revealjs:
     theme: [default, custom.scss]
     width: 1600
     height: 900
     slide-number: true
     html-math-method: mathjax
+    auto-stretch: false
 ---
 
 ```{r setup, echo=F}
 library(here)
 library(dagitty)
+library(ggplot2)
+library(dplyr)
+library(forcats)
+library(tidyr)
+library(patchwork)
 source(here("code", "dag-function.R"))
 ```
 
@@ -72,4 +78,90 @@ text(7.3, -1.5,  "Accidents",     col = "firebrick", font = 3, cex = 1.3)
 text(5.5,  0.15, "Age",           col = "firebrick", font = 3, cex = 1.3)
 text(5.5, -3.15, "Sex",           col = "firebrick", font = 3, cex = 1.3)
 ```
+
+## Danish smoking has declined from 21% (2010) to 11% (2025) {.smaller}
+
+```{r danish-smoking-data, include=FALSE}
+theme_blue <- "#377eb8"
+theme_red  <- "#ED1B2F"
+
+edu_levels <- c("Grundskole*", "Gymnasial/erhvervsfaglig*", "Kort videregående",
+                "Mellemlang videregående", "Lang videregående")
+
+dk_rate <- tibble::tribble(
+  ~education,                  ~y2010, ~y2025,
+  "Grundskole*",                 30.5,   19.7,
+  "Gymnasial/erhvervsfaglig*",   24.9,   13.5,
+  "Kort videregående",           21.7,    9.9,
+  "Mellemlang videregående",     15.8,    8.3,
+  "Lang videregående",            9.0,    4.4
+) |>
+  mutate(education = factor(education, levels = edu_levels)) |>
+  pivot_longer(c(y2010, y2025), names_to = "year", values_to = "value") |>
+  mutate(year = if_else(year == "y2010", "2010", "2025"))
+
+dk_share <- tibble::tribble(
+  ~education,                  ~y2010, ~y2025,
+  "Grundskole*",                13.3,   10.4,
+  "Gymnasial/erhvervsfaglig*",  40.5,   34.7,
+  "Kort videregående",          12.6,   10.7,
+  "Mellemlang videregående",    22.1,   27.8,
+  "Lang videregående",          11.5,   16.3
+) |>
+  mutate(education = factor(education, levels = edu_levels)) |>
+  pivot_longer(c(y2010, y2025), names_to = "year", values_to = "value") |>
+  mutate(year = if_else(year == "y2010", "2010", "2025"))
+
+dot_plot <- function(dat, x_limits, x_lab, show_labels = TRUE) {
+  offset <- diff(x_limits) * 0.035
+  dat <- dat |>
+    group_by(education) |>
+    mutate(
+      is_max      = value == max(value),
+      label_x     = value + if_else(is_max, offset, -offset),
+      label_hjust = if_else(is_max, 0, 1)
+    ) |>
+    ungroup()
+
+  p <- ggplot(dat, aes(x = value, y = fct_rev(education))) +
+    geom_line(aes(group = education), colour = "grey70", linewidth = 3) +
+    geom_point(aes(colour = year), size = 6) +
+    geom_text(aes(x = label_x, label = sprintf("%.1f%%", value), colour = year, hjust = label_hjust),
+              size = 4, show.legend = FALSE) +
+    scale_colour_manual(values = c("2010" = theme_blue, "2025" = theme_red)) +
+    scale_x_continuous(limits = x_limits, expand = expansion(mult = c(0.08, 0.05))) +
+    labs(x = x_lab, y = NULL, colour = NULL) +
+    theme_minimal(base_size = 15) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_blank(),
+      legend.position = "top"
+    )
+
+  if (!show_labels) p <- p + theme(axis.text.y = element_blank())
+  p
+}
+```
+
+::::: {.columns}
+::: {.column width="55%"}
+::: {.fragment}
+```{r fig.width=7, fig.height=5.5, out.width="100%"}
+dot_plot(dk_rate, c(0, 35), "% current (daily) smokers", show_labels = TRUE)
+```
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment}
+```{r fig.width=5.75, fig.height=5.5, out.width="100%"}
+dot_plot(dk_share, c(0, 45), "% of population", show_labels = FALSE)
+```
+:::
+:::
+:::::
+
+::: footnote
+Source: Den Nationale Sundhedsprofil 2010 (Tabel 4.1.1) and 2025 (Tabel 3.1.3), Statens Institut for Folkesundhed / Sundhedsstyrelsen.
+:::
 

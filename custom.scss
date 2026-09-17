@@ -88,6 +88,18 @@ $content-margin-left: 33% !default;
 .reveal h2, .reveal h3 { font-weight: 400; }
 
 // -----------------------------------------------------------------------
+// Images/figures at full slide width
+// Reveal.js's own base theme caps `.reveal img { max-width: 95%; max-
+// height: 95%; }` -- fine for small inline images, but it silently eats
+// 5% of the space on any figure meant to fill the slide (e.g. a wide
+// side-by-side patchwork figure with out.width="100%"), and interacts
+// badly with wrapped raw-HTML overlays (position:relative containers)
+// where the image needs to exactly match its wrapper's size. Overriding
+// here once rather than patching every image/wrapper individually.
+// -----------------------------------------------------------------------
+.reveal img { max-width: 100%; max-height: 100%; }
+
+// -----------------------------------------------------------------------
 // Inline emphasis spans
 // Use sparingly: color highlights one clause the audience should carry
 // away, not whole slides. Applied as [text]{.blue} etc.

@@ -204,12 +204,6 @@ plot_endow_detail <- function() {
 }
 ```
 
-##  {background-image="images/titmuss-cover.png" background-size="100px" background-repeat="repeat"}
-
-::: {.textbox .dark .absolute top="25%" left="8%" width="65%"}
-“But obviously the next stage is to break down the twelve-monthly death rates so far examined in order to discover [at what ages and from which causes inequality derives its strength]{.blue}" <br> <br> -Richard Titmuss (1943)
-:::
-
 ## Decomposition: from description to explanation {.vcenter}
 
 ::::::: roomy
@@ -230,6 +224,98 @@ Techniques often involve 'counterfactual' scenarios
 :::
 ::::::
 :::::::
+
+## Danish smoking has declined from 21% (2010) to 11% (2025) {.smaller}
+
+```{r danish-smoking-data, include=FALSE}
+theme_blue <- "#377eb8"
+theme_red  <- "#ED1B2F"
+
+edu_levels <- c("Grundskole*", "Gymnasial/erhvervsfaglig*", "Kort videregående",
+                "Mellemlang videregående", "Lang videregående")
+
+dk_rate <- tibble::tribble(
+  ~education,                  ~y2010, ~y2025,
+  "Grundskole*",                 30.5,   19.7,
+  "Gymnasial/erhvervsfaglig*",   24.9,   13.5,
+  "Kort videregående",           21.7,    9.9,
+  "Mellemlang videregående",     15.8,    8.3,
+  "Lang videregående",            9.0,    4.4
+) |>
+  mutate(education = factor(education, levels = edu_levels)) |>
+  pivot_longer(c(y2010, y2025), names_to = "year", values_to = "value") |>
+  mutate(year = if_else(year == "y2010", "2010", "2025"))
+
+dk_share <- tibble::tribble(
+  ~education,                  ~y2010, ~y2025,
+  "Grundskole*",                13.3,   10.4,
+  "Gymnasial/erhvervsfaglig*",  40.5,   34.7,
+  "Kort videregående",          12.6,   10.7,
+  "Mellemlang videregående",    22.1,   27.8,
+  "Lang videregående",          11.5,   16.3
+) |>
+  mutate(education = factor(education, levels = edu_levels)) |>
+  pivot_longer(c(y2010, y2025), names_to = "year", values_to = "value") |>
+  mutate(year = if_else(year == "y2010", "2010", "2025"))
+
+dot_plot <- function(dat, x_limits, x_lab, show_labels = TRUE) {
+  offset <- diff(x_limits) * 0.035
+  dat <- dat |>
+    group_by(education) |>
+    mutate(
+      is_max      = value == max(value),
+      label_x     = value + if_else(is_max, offset, -offset),
+      label_hjust = if_else(is_max, 0, 1)
+    ) |>
+    ungroup()
+
+  p <- ggplot(dat, aes(x = value, y = fct_rev(education))) +
+    geom_line(aes(group = education), colour = "grey70", linewidth = 3) +
+    geom_point(aes(colour = year), size = 6) +
+    geom_text(aes(x = label_x, label = sprintf("%.1f%%", value), colour = year, hjust = label_hjust),
+              size = 4, show.legend = FALSE) +
+    scale_colour_manual(values = c("2010" = theme_blue, "2025" = theme_red)) +
+    scale_x_continuous(limits = x_limits, expand = expansion(mult = c(0.08, 0.05))) +
+    labs(x = x_lab, y = NULL, colour = NULL) +
+    theme_minimal(base_size = 15) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major.y = element_blank(),
+      legend.position = "top"
+    )
+
+  if (!show_labels) p <- p + theme(axis.text.y = element_blank())
+  p
+}
+```
+
+::::: {.columns}
+::: {.column width="55%"}
+::: {.fragment}
+```{r fig.width=7, fig.height=5.5, out.width="100%"}
+dot_plot(dk_rate, c(0, 35), "% current (daily) smokers", show_labels = TRUE)
+```
+:::
+:::
+
+::: {.column width="45%"}
+::: {.fragment}
+```{r fig.width=5.75, fig.height=5.5, out.width="100%"}
+dot_plot(dk_share, c(0, 45), "% of population", show_labels = FALSE)
+```
+:::
+:::
+:::::
+
+::: footnote
+Source: Den Nationale Sundhedsprofil 2010 (Tabel 4.1.1) and 2025 (Tabel 3.1.3), Statens Institut for Folkesundhed / Sundhedsstyrelsen.
+:::
+
+##  {background-image="images/titmuss-cover.png" background-size="100px" background-repeat="repeat"}
+
+::: {.textbox .dark .absolute top="25%" left="8%" width="65%"}
+“But obviously the next stage is to break down the twelve-monthly death rates so far examined in order to discover [at what ages and from which causes inequality derives its strength]{.blue}" <br> <br> -Richard Titmuss (1943)
+:::
 
 {{< include _plan.qmd >}}
 
@@ -252,6 +338,99 @@ knitr::include_graphics(here("images",
 
 ::: footnote
 Seminal paper by @kitagawa1955
+:::
+
+## Overview {.h2center}
+
+<br>
+
+### [Concentration Index Decomposition]{.gray}
+
+<br>
+
+### [Kitagawa-Blinder-Oaxaca Decomposition]{.black}
+
+## Idea for Decomposition of Means
+
+:::::: columns
+::: {.column width="45%"}
+<br>
+
+The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
+
+Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="45%"}
+<br>
+
+Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
+
+"Unpacking" or "decomposing" difference.
+:::
+::::::
+
+## Origins
+
+::::: columns
+::: {.column width="25%"}
+```{r}
+knitr::include_graphics(here("images", "kitagawa-title.png"))
+```
+:::
+
+::: {.column width="75%"}
+Evelyn Kitagawa [-@kitagawa1955] was a sociologist and demographer who devised a non-parametric method for decomposing differences between rates, refined by Prithwis das Gupta in 1978.
+
+- Focused on understanding group contributions to rate differences.
+
+Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
+
+- Focused on how much of wage gap was 'explained' by differences in observable characteristics
+:::
+:::::
+
+## Brief note on interpretation
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
+
+Decomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.
+
+<br>
+
+If regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.
+
+<br>
+
+If data allow identification of causal effects, then the factors that generate the inequality are identified.
+
+<br>
+
+Then one can (potentially) draw conclusions about how policies would impact on inequality.
+:::
+:::::
+
+::: footnote
+@odonnell2008
+:::
+
+## 
+
+```{r, out.width="65%"}
+knitr::include_graphics(here("images", 
+  "decomp-ex-spain.png"))
+```
+
+::: footnote
+[@jiménez-rubio2010]
 :::
 
 ## Kitagawa: Why?
@@ -386,7 +565,10 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 :::::
 
 ::: {.fragment data-fragment-index="2"}
-Total = −2.0 + 10.0 = **8.0** = crude gap (25 − 17) ✓ — and the rate effect alone (+10.0) equals the standardized gap (26 − 16) ✓
+<br>
+Total = −2.0 + 10.0 = **8.0** = crude gap (25 − 17)  
+
+Rate effect (+10) = standardized gap (26 − 16)
 :::
 
 ## 
@@ -1282,28 +1464,6 @@ dag_plot(dag, curve = dag_curve, shrink = dag_shrink)
 
 ## 
 
-We want to understand this:
-
-```{r, out.width="50%"}
-knitr::include_graphics(here("images", "inc-health-dag.png"))
-```
-
-## 
-
-We want to understand this:
-
-```{r, out.width="50%"}
-knitr::include_graphics(here("images", "inc-health-dag.png"))
-```
-
-By evaluating something like this:
-
-```{r, out.width="60%"}
-knitr::include_graphics(here("images", "rci-arrows.png"))
-```
-
-## 
-
 ::::: columns
 ::: {.column width="25%"}
 ### Relative Concentration Curve
@@ -1320,7 +1480,6 @@ knitr::include_graphics(here("images", "conc-curve.png"))
 
 :::: columns
 ::: {.column width="45%"}
-Recall that we can write the CI as:
 
 $$RCI= \frac{2}{n\mu} \sum_{i=1}^{n}y_{i}R_{i}-1$$
 
@@ -1337,8 +1496,9 @@ where
 
 *Decomposition*:
 
-- The basic idea here is to develop a [model for predicting $y$]{.blue} using several determinants, then plug that model back into the equation for the $RCI$
-- This allows us to estimate how much of the overall inequality in $y$ is due to the association between income and other factors that predict health, and how much is 'unexplained' by these factors.
+Develop a [model for predicting $y$]{.blue} using several determinants, then plug back into the $RCI$ equation
+
+Estimates how much of the overall inequality in $y$ is due to the association between income and other factors that predict health
 :::
 ::::
 
@@ -1346,18 +1506,19 @@ where
 @kakwani1997
 :::
 
-## Decomposition of the RCI
+## 
 
 ::::: columns
 ::: {.column width="25%"}
+### RCI Decomposition
 :::
 
 ::: {.column width="75%"}
 <br>
 
-Since the $RCI$ is a function of health $(y_{i})$ and a socioeconomic rank variable $(R_{i})$, i.e. $$RCI= \frac{2}{n\mu} \sum_{i=1}^{n}{\color{red}{y_{i}}}R_{i}-1$$
+$RCI$ is a function of health $(y_{i})$ and socioeconomic rank $(R_{i})$, i.e. $$RCI= \frac{2}{n\mu} \sum_{i=1}^{n}{\color{red}{y_{i}}}R_{i}-1$$
 
-Then suppose that one can write a regression equation expressing the health outcome of interest $(y_{i})$ as a function of several $k_{i}$ determinants (e.g., age, gender, urban/rural status): $$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
+Then write a regression expressing health $(y_{i})$ as a function of several $k_{i}$ determinants (e.g., age, gender, urban/rural status): $$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 :::
 :::::
 
@@ -1365,13 +1526,15 @@ Then suppose that one can write a regression equation expressing the health outc
 @wagstaff2003
 :::
 
-## Decomposition of the RCI
+## 
 
-::: left-column
+::::: columns
+::: {.column width="25%"}
+### RCI Decomposition
 :::
 
-::: right-column
-Since *RCI* is a function of $y_{i}$ and socioeconomic rank, one can then re-express the relative concentration index as:
+::: {.column width="75%"}
+Now re-express $RCI$ as:
 
 $$RCI=\sum{(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}}+gRCI_{e}/\mu$$
 
@@ -1382,7 +1545,13 @@ Where
 - $\beta_{k}$ is the regression coefficient for $x_{k}$, and
 - $RCI_{k}$ is the relative concentration index for $x_{k}$.
 
-The basic idea: how much of the overall inequality is due to other factors that are both differentially distributed by $x$ (income) and also affect $y$ (e.g., smoking)?
+:::
+:::::
+
+::: {.fragment}
+::: {.textbox .dark .absolute top="60%" left="10%" width="75%"}
+How much of inequality is due to other factors that are differential by $x$ (income) and also affect $y$ (e.g., smoking)?
+:::
 :::
 
 ## Explained and unexplained components
@@ -1426,30 +1595,6 @@ dag_plot(dag,
 
 ::: {.column width="50%"}
 Determinant impact depends on:
-
-1.  the strength of the relationship between each factor and income $\color{blue}{RCI_{k}}$
-
-2.  the strength of the relationship between each factor and health, and its prevalence in the population (elasticity) $\color{red}{\beta_{k}\bar{x}_{k}/\mu}$
-:::
-:::::
-
-## Two types of 'explained' components
-
-::::: columns
-::: {.column width="50%"}
-```{r, out.width="80%"}
-knitr::include_graphics(here("images", "inc-health-dag.png"))
-```
-
-<br>
-
-```{r, out.width="80%"}
-knitr::include_graphics(here("images", "rci-arrows-color.png"))
-```
-:::
-
-::: {.column width="50%"}
-The influence of determinants depends on two things:
 
 1.  the strength of the relationship between each factor and income $\color{blue}{RCI_{k}}$
 
@@ -1873,99 +2018,6 @@ The regression equations are predictive and not causal models.
 Main utility is not in estimating the potential impact on $y$ of changing the distribution of socioeconomic position, but in indicating the potential role that other factors may play in generating socioeconomic inequalities in health.
 :::
 :::::
-
-## Overview {.h2center}
-
-<br>
-
-### [Concentration Index Decomposition]{.gray}
-
-<br>
-
-### [Kitagawa-Blinder-Oaxaca Decomposition]{.black}
-
-## Idea for Decomposition of Means
-
-:::::: columns
-::: {.column width="45%"}
-<br>
-
-The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
-
-Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
-:::
-
-::: {.column width="5%"}
-:::
-
-::: {.column width="45%"}
-<br>
-
-Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
-
-"Unpacking" or "decomposing" difference.
-:::
-::::::
-
-## Origins
-
-::::: columns
-::: {.column width="25%"}
-```{r}
-knitr::include_graphics(here("images", "kitagawa-title.png"))
-```
-:::
-
-::: {.column width="75%"}
-Evelyn Kitagawa [-@kitagawa1955] was a sociologist and demographer who devised a non-parametric method for decomposing differences between rates, refined by Prithwis das Gupta in 1978.
-
-- Focused on understanding group contributions to rate differences.
-
-Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
-
-- Focused on how much of wage gap was 'explained' by differences in observable characteristics
-:::
-:::::
-
-## Brief note on interpretation
-
-::::: columns
-::: {.column width="25%"}
-:::
-
-::: {.column width="75%"}
-<br>
-
-Decomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.
-
-<br>
-
-If regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.
-
-<br>
-
-If data allow identification of causal effects, then the factors that generate the inequality are identified.
-
-<br>
-
-Then one can (potentially) draw conclusions about how policies would impact on inequality.
-:::
-:::::
-
-::: footnote
-@odonnell2008
-:::
-
-## 
-
-```{r, out.width="65%"}
-knitr::include_graphics(here("images", 
-  "decomp-ex-spain.png"))
-```
-
-::: footnote
-[@jiménez-rubio2010]
-:::
 
 {{< include _plan.qmd >}}
 
