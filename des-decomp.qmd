@@ -246,7 +246,7 @@ knitr::include_graphics(here("images",
 :::
 
 ::: {.column width="50%"}
-> If standardization alters a difference between two rates, it should be possible ... to break it up into components attributable to the various factors for which the data were standardized.
+> If standardization alters a difference between two rates, it should be possible ... to break it up into [components]{.red} attributable to the various factors for which the data were standardized.
 :::
 :::::
 
@@ -309,23 +309,79 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 
 <br>
 
-::::: columns
+::::: {.columns}
 ::: {.column width="48%"}
-|         |       Composition effect       |
-|---------|:------------------------------:|
-| Group   | \$\\frac{R\_{ai}+R\_{bi}}{2}\$ |
-| Young   |               15               |
-| Old     |               25               |
-| **Sum** |                                |
+<table style="width:100%; border-collapse:collapse; font-size:0.7em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition effect</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{R_{ai}+R_{bi}}{2}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{bi}-P_{ai}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="fragment" data-fragment-index="0">
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">15</td>
+<td style="text-align:center; border:none;">+0.20</td>
+<td style="text-align:center; border:none;">+3.0</td>
+</tr>
+<tr class="fragment" data-fragment-index="1">
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">25</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">−0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">−5.0</td>
+</tr>
+<tr class="fragment" data-fragment-index="2" style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">−2.0</td>
+</tr>
+</tbody>
+</table>
 :::
 
 ::: {.column width="48%"}
-|         |          Rate effect           |
-|---------|:------------------------------:|
-| Group   | \$\\frac{P\_{ai}+P\_{bi}}{2}\$ |
-| Young   |              0.40              |
-| Old     |              0.60              |
-| **Sum** |                                |
+<table style="width:100%; border-collapse:collapse; font-size:0.7em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate effect</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{P_{ai}+P_{bi}}{2}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{bi}-R_{ai}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="fragment" data-fragment-index="0">
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">0.40</td>
+<td style="text-align:center; border:none;">+10</td>
+<td style="text-align:center; border:none;">+4.0</td>
+</tr>
+<tr class="fragment" data-fragment-index="1">
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.60</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
+</tr>
+<tr class="fragment" data-fragment-index="2" style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">+10.0</td>
+</tr>
+</tbody>
+</table>
 :::
 :::::
 
@@ -1923,31 +1979,14 @@ knitr::include_graphics(here("images",
 
 ## Many recent developments
 
+Reconciling the descriptive framework of KBO with causal inference.
+
 ![](images/cda-jackson-2018-title.png){.absolute top="150" left="0" width="450" height="600"} ![](images/cda-jackson-2021-title.png){.absolute top="150" left="300" width="450" height="600"} ![](images/cda-lundberg-2024-title.png){.absolute top="150" left="600" width="450" height="600"} ![](images/cda-yu-2025-title.png){.absolute top="150" left="800" width="450" height="600"} ![](images/cda-jackson-2025-title.png){.absolute top="150" left="1000" width="450" height="600"} ![](images/cda-opacic-2026-title.png){.absolute top="150" left="1200" width="450" height="600"} 
 
 ::: footnote
 See @jackson2018; @jackson2021; @lundberg2024; @yu2025; @jackson2025; @opacic2026 
 :::
 
-## 
-
-::::: columns
-::: {.column width="25%"}
-### Methods frontier
-
-Attempting to reconcile the non-causal framework of KBO with mediation methods, new estimators.
-:::
-
-::: {.column width="75%"}
-```{r}
-knitr::include_graphics(here("images", "jackson-epid-title.png"))
-```
-:::
-:::::
-
-::: footnote
-@jackson2021
-:::
 
 ## Challenges with 'categories'
 
