@@ -293,98 +293,39 @@ tt(kita_toy, width = 0.75) |>
 
 ## Applying the decomposition
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 \underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} &= \overbrace{\sum_i \left(\frac{R_{ai}+R_{bi}}{2}\right)(P_{bi}-P_{ai})}^{\text{composition effect}} \\
 &+ \underbrace{\sum_i \left(\frac{P_{ai}+P_{bi}}{2}\right)(R_{bi}-R_{ai})}_{\text{rate effect}}
-\end{aligned}
-$$
+\end{aligned}$$
 
-$R_{ai}$ is the rate for group *a* in stratum *i*.   
+$R_{ai}$ is the rate for group *a* in stratum *i*.\
 $P_{ai}$ is the *i*-stratum-specific weight in group *a*.
 
 ## 
+
 ::: {style="font-size:0.6em;"}
-$$
-\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbrace{\sum_i \left(\frac{R_{ai}+R_{bi}}{2}\right)(P_{bi}-P_{ai})}^{\text{composition effect}} + \underbrace{\sum_i \left(\frac{P_{ai}+P_{bi}}{2}\right)(R_{bi}-R_{ai})}_{\text{rate effect}}
-$$
+$$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbrace{\sum_i \left(\frac{R_{ai}+R_{bi}}{2}\right)(P_{bi}-P_{ai})}^{\text{composition effect}} + \underbrace{\sum_i \left(\frac{P_{ai}+P_{bi}}{2}\right)(R_{bi}-R_{ai})}_{\text{rate effect}}$$
 :::
 
 <br>
 
-::::: {.columns}
+::::: columns
 ::: {.column width="48%"}
-<table style="width:100%; border-collapse:collapse; font-size:0.7em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition effect</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{R_{ai}+R_{bi}}{2}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{bi}-P_{ai}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
-</tr>
-</thead>
-<tbody>
-<tr class="fragment" data-fragment-index="0">
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">15</td>
-<td style="text-align:center; border:none;">+0.20</td>
-<td style="text-align:center; border:none;">+3.0</td>
-</tr>
-<tr class="fragment" data-fragment-index="1">
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">25</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">−0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">−5.0</td>
-</tr>
-<tr class="fragment" data-fragment-index="2" style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">−2.0</td>
-</tr>
-</tbody>
-</table>
+|         |       Composition effect       |
+|---------|:------------------------------:|
+| Group   | \$\\frac{R\_{ai}+R\_{bi}}{2}\$ |
+| Young   |               15               |
+| Old     |               25               |
+| **Sum** |                                |
 :::
 
 ::: {.column width="48%"}
-<table style="width:100%; border-collapse:collapse; font-size:0.7em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate effect</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{P_{ai}+P_{bi}}{2}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{bi}-R_{ai}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
-</tr>
-</thead>
-<tbody>
-<tr class="fragment" data-fragment-index="0">
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">0.40</td>
-<td style="text-align:center; border:none;">+10</td>
-<td style="text-align:center; border:none;">+4.0</td>
-</tr>
-<tr class="fragment" data-fragment-index="1">
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.60</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
-</tr>
-<tr class="fragment" data-fragment-index="2" style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">+10.0</td>
-</tr>
-</tbody>
-</table>
+|         |          Rate effect           |
+|---------|:------------------------------:|
+| Group   | \$\\frac{P\_{ai}+P\_{bi}}{2}\$ |
+| Young   |              0.40              |
+| Old     |              0.60              |
+| **Sum** |                                |
 :::
 :::::
 
@@ -392,7 +333,7 @@ $$
 Total = −2.0 + 10.0 = **8.0** = crude gap (25 − 17) ✓ — and the rate effect alone (+10.0) equals the standardized gap (26 − 16) ✓
 :::
 
-##
+## 
 
 ::::: {.columns .valign-center}
 ::: {.column width="50%"}
@@ -421,7 +362,7 @@ Seminal paper by @kitagawa1955
 
 ## 
 
-::::: {.columns}
+::::: columns
 ::: {.column width="50%"}
 [What accounts for differences in neonatal mortality rates across European countries?]{.blue}
 
@@ -440,7 +381,6 @@ knitr::include_graphics(here("images",
   "sartorius-title.png"))
 ```
 :::
-
 :::::
 
 ::: footnote
@@ -449,20 +389,27 @@ knitr::include_graphics(here("images",
 
 ## Hiding in plain sight?
 
-Both DK and AT ~0.3 deaths per 1000 higher than "Top 3"
+Both DK and AT \~0.3 deaths per 1000 higher than "Top 3"
 
 ::: {.fragment data-fragment-index="0"}
 But *completely different* contributions to the difference
 :::
 
-::: {style="position: relative;"}
-<img src="images/sartorius-table.png" style="display:block; width:100%; max-width:100%; margin:0; padding:0;">
+::::::: {style="position: relative;"}
+<img src="images/sartorius-table.png" style="display:block; width:100%; max-width:100%; margin:0; padding:0;"/>
 
-<div class="fragment" data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:65.5%; top:80.8%; width:4.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"></div>
-<div class="fragment" data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:81.9%; top:81.2%; width:2.9%; height:5.4%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"></div>
-<div class="fragment" data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:65.5%; top:90.7%; width:3.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"></div>
-<div class="fragment" data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:82.0%; top:90.7%; width:5.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"></div>
+::: {.fragment data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:65.5%; top:80.8%; width:4.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"}
 :::
+
+::: {.fragment data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:81.9%; top:81.2%; width:2.9%; height:5.4%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"}
+:::
+
+::: {.fragment data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:65.5%; top:90.7%; width:3.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"}
+:::
+
+::: {.fragment data-fragment-index="0" style="position:absolute; box-sizing:border-box; left:82.0%; top:90.7%; width:5.2%; height:5.8%; border:3px solid #d6272c; border-radius:4px; pointer-events:none;"}
+:::
+:::::::
 
 ::: footnote
 @sartorius2024
@@ -490,7 +437,7 @@ sartorius_dist <- tibble(
 )
 ```
 
-##
+## 
 
 ### Denmark and Austria: higher NMR at lower GA, lower at higher GA
 
@@ -651,8 +598,6 @@ dist_main_plot +
 :::
 ::::::
 
-
-
 {{< include _plan.qmd >}}
 
 # 2. Oaxaca–Blinder Decomposition {#oaxaca}
@@ -807,17 +752,14 @@ pA + pB
 Left: OLS regression line always passes through $(\bar{x}, \bar{y})$ because residuals sum to zero. Right: the gap in group means decomposes into **endowments** (different $\bar{x}$, same coefficients — grey triangle to blue dot) and **coefficients** (same $\bar{x}$, different slopes/intercepts — grey triangle to red dot).
 :::
 
-##  
+## 
 
 ::::: columns
 ::: {.column width="25%"}
-
 Some text
-
 :::
 
 ::: {.column width="75%"}
-
 ```{r, fig.width=8, fig.height=6}
 set.seed(42)
 n <- 120
@@ -908,10 +850,8 @@ ggplot(df_sim, aes(x, y, colour = group)) +
         panel.grid.minor = element_blank(),
         legend.position = "top")
 ```
-
 :::
-
-::::: 
+:::::
 
 ## 
 
@@ -1258,7 +1198,6 @@ countdown(minutes = 5,
           font_size = "7em",
           color_text= '#377eb8')
 ```
-
 
 {{< include _plan.qmd >}}
 
@@ -1982,6 +1921,14 @@ knitr::include_graphics(here("images",
 
 - What if we intervened?
 
+## Many recent developments
+
+![](images/cda-jackson-2018-title.png){.absolute top="150" left="0" width="450" height="600"} ![](images/cda-jackson-2021-title.png){.absolute top="150" left="300" width="450" height="600"} ![](images/cda-lundberg-2024-title.png){.absolute top="150" left="600" width="450" height="600"} ![](images/cda-yu-2025-title.png){.absolute top="150" left="800" width="450" height="600"} ![](images/cda-jackson-2025-title.png){.absolute top="150" left="1000" width="450" height="600"} ![](images/cda-opacic-2026-title.png){.absolute top="150" left="1200" width="450" height="600"} 
+
+::: footnote
+See @jackson2018; @jackson2021; @lundberg2024; @yu2025; @jackson2025; @opacic2026 
+:::
+
 ## 
 
 ::::: columns
@@ -2007,7 +1954,6 @@ knitr::include_graphics(here("images", "jackson-epid-title.png"))
 ## Different from causal mediation
 
 ## Brief example
-
 
 ## Summary
 
