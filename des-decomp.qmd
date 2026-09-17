@@ -210,6 +210,27 @@ plot_endow_detail <- function() {
 “But obviously the next stage is to break down the twelve-monthly death rates so far examined in order to discover [at what ages and from which causes inequality derives its strength]{.blue}" <br> <br> -Richard Titmuss (1943)
 :::
 
+## Decomposition: from description to explanation {.vcenter}
+
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**What changed?**\
+Explaining growing or shrinking gaps
+:::
+
+::: msg-item
+**Which 'components'?**\
+Bridge between descriptive and causal
+:::
+
+::: msg-item
+**What if?**\
+Techniques often involve 'counterfactual' scenarios
+:::
+::::::
+:::::::
+
 {{< include _plan.qmd >}}
 
 # 1. Kitagawa's Decomposition {#kitagawa}
@@ -234,6 +255,20 @@ Seminal paper by @kitagawa1955
 :::
 
 ## Kitagawa: Why?
+
+Rate differences define inequalities
+
+Rates are complex
+
+how much of it is because the groups differ in composition versus because the same factor matters differently for each group?
+
+## You will recall...
+
+With data on outcomes $y_{i}$ and populations $n_{i}$ for *i* groups:
+
+Crude rate
+
+$$\sum_{i=1}^{I} \frac{y_{i}}{n_{i}}$$
 
 ## Link between standardization and decomposition
 
@@ -265,7 +300,8 @@ $$
 \end{aligned}
 $$
 
-$R_{ai}$ is the rate for group *a* in stratum *i*. $P_{ai}$ is the *i*-stratum-specific weight in group *a*.
+$R_{ai}$ is the rate for group *a* in stratum *i*.   
+$P_{ai}$ is the *i*-stratum-specific weight in group *a*.
 
 ## 
 ::: {style="font-size:0.6em;"}
@@ -615,26 +651,7 @@ dist_main_plot +
 :::
 ::::::
 
-## Decomposition: from description to explanation {.vcenter}
 
-::::::: roomy
-:::::: msg-list
-::: msg-item
-**What changed?**\
-Explaining growing or shrinking gaps
-:::
-
-::: msg-item
-**Which 'components'?**\
-Bridge between descriptive and causal
-:::
-
-::: msg-item
-**What if?**\
-Techniques often involve 'counterfactual' scenarios
-:::
-::::::
-:::::::
 
 {{< include _plan.qmd >}}
 
@@ -789,6 +806,112 @@ pA + pB
 ::: footnote
 Left: OLS regression line always passes through $(\bar{x}, \bar{y})$ because residuals sum to zero. Right: the gap in group means decomposes into **endowments** (different $\bar{x}$, same coefficients — grey triangle to blue dot) and **coefficients** (same $\bar{x}$, different slopes/intercepts — grey triangle to red dot).
 :::
+
+##  
+
+::::: columns
+::: {.column width="25%"}
+
+Some text
+
+:::
+
+::: {.column width="75%"}
+
+```{r, fig.width=8, fig.height=6}
+set.seed(42)
+n <- 120
+
+# Two groups with different x means AND different slopes
+x1 <- rnorm(n, mean = 3.5, sd = 1)
+y1 <- 1.0 + 0.5 * x1 + rnorm(n, sd = 0.8)
+
+x2 <- rnorm(n, mean = 5.5, sd = 1)
+y2 <- 0.5 + 0.9 * x2 + rnorm(n, sd = 0.8)
+
+df_sim <- bind_rows(
+  tibble(x = x1, y = y1, group = "Unexposed"),
+  tibble(x = x2, y = y2, group = "Exposed")
+)
+
+fits <- df_sim |>
+  group_by(group) |>
+  group_modify(~ broom::tidy(lm(y ~ x, data = .x))) |>
+  select(group, term, estimate) |>
+  pivot_wider(names_from = term, values_from = estimate) |>
+  rename(alpha = `(Intercept)`, beta = x)
+
+means <- df_sim |>
+  group_by(group) |>
+  summarise(xbar = mean(x), ybar = mean(y), .groups = "drop") |>
+  left_join(fits, by = "group")
+
+grp_colors <- c("Unexposed" = "#4393c3", "Exposed" = "#d6604d")
+
+# Panel A: single group showing (x̄, ȳ) on the line
+df1 <- filter(df_sim, group == "Unexposed")
+m1  <- filter(means,  group == "Unexposed")
+
+# Panel B: two groups — endowments vs coefficients
+pred_line <- bind_rows(
+  tibble(group = "Unexposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Unexposed")$alpha +
+               filter(fits, group == "Unexposed")$beta * x),
+  tibble(group = "Exposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Exposed")$alpha +
+               filter(fits, group == "Exposed")$beta * x)
+)
+
+# Counterfactual: unexposed coefficients evaluated at exposed x̄
+m_exp <- filter(means, group == "Exposed")
+m_unexp <- filter(means, group == "Unexposed")
+y_cf <- m_unexp$alpha + m_unexp$beta * m_exp$xbar   # unexposed betas, exposed means
+
+ggplot(df_sim, aes(x, y, colour = group)) +
+  geom_point(alpha = 0.2, size = 2) +
+  geom_line(data = pred_line, aes(x, y, colour = group), linewidth = 1.2) +
+  # vertical lines at each group's x̄
+  geom_vline(xintercept = m_unexp$xbar, linetype = "dashed",
+             colour = grp_colors["Unexposed"], linewidth = 0.7) +
+  geom_vline(xintercept = m_exp$xbar,   linetype = "dashed",
+             colour = grp_colors["Exposed"],   linewidth = 0.7) +
+  # actual group means on their own lines
+  geom_point(data = means, aes(x = xbar, y = ybar, colour = group),
+             size = 5, show.legend = FALSE) +
+  # counterfactual point
+  geom_point(aes(x = m_exp$xbar, y = y_cf),
+             colour = "grey30", size = 4, shape = 17) +
+  # arrows showing decomposition
+  annotate("segment",
+           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
+           y = y_cf, yend = m_exp$ybar,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#9e3a14", linewidth = 0.8) +
+  annotate("segment",
+           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
+           y = m_unexp$ybar, yend = y_cf,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#1a5276", linewidth = 0.8) +
+  annotate("label", x = m_exp$xbar + 0.25, y = (y_cf + m_exp$ybar) / 2,
+           label = "Coefficients", colour = "#9e3a14",
+           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
+  annotate("label", x = m_exp$xbar + 0.25, y = (m_unexp$ybar + y_cf) / 2,
+           label = "Endowments", colour = "#1a5276",
+           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
+  scale_colour_manual(values = grp_colors) +
+  labs(title = "Gap = endowments + coefficients",
+       x = "x", y = "y", colour = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title  = element_text(face = "bold"),
+        panel.grid.minor = element_blank(),
+        legend.position = "top")
+```
+
+:::
+
+::::: 
 
 ## 
 
@@ -1853,6 +1976,12 @@ knitr::include_graphics(here("images",
 
 # 4. Interventional Decomposition {#intervention}
 
+## Why 'interventional'?
+
+- Kitagawa, B-0, CI decomp all 'descriptive'
+
+- What if we intervened?
+
 ## 
 
 ::::: columns
@@ -1872,6 +2001,13 @@ knitr::include_graphics(here("images", "jackson-epid-title.png"))
 ::: footnote
 @jackson2021
 :::
+
+## Challenges with 'categories'
+
+## Different from causal mediation
+
+## Brief example
+
 
 ## Summary
 
