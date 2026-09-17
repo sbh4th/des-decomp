@@ -1,0 +1,75 @@
+---
+title: "scratch"
+format: 
+  revealjs:
+    theme: [default, custom.scss]
+    width: 1600
+    height: 900
+    slide-number: true
+    html-math-method: mathjax
+---
+
+```{r setup, echo=F}
+library(here)
+library(dagitty)
+source(here("code", "dag-function.R"))
+```
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+## {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+$\sum_{i} \frac{r_{i}}{n_{i}}$
+:::
+
+## {auto-animate=true}
+
+::: {style="margin-top: 200px; font-size: 3em; color: red;"}
+$\sum_{i} \frac{r_{i}}{n_{i}}$
+:::
+
+##
+
+$\sum_{i} \frac{r_{i}}{n_{i}}$
+
+## A DAG
+
+```{r}
+dag2 <- dagitty("dag {
+  E -> C
+  C -> A
+  A -> D
+  E -> A
+  E -> D
+  C -> D
+  G -> A
+  G -> D
+  S -> A
+  S -> D
+}")
+
+coordinates(dag2) <- list(
+  x = c(E = 1, C = 2.8, A = 4.6, D = 6.4, G = 5.5, S = 5.5),
+  y = c(E = 1.5, C = 1.5, A = 1.5, D = 1.5, G = 0.3, S = 2.7)
+)
+
+curve2 <- list(
+  "E->A" = c(0, 0.6),
+  "C->D" = c(0, -0.6),
+  "E->D" = c(0, -1.3)
+)
+
+dag_plot(dag2, curve = curve2, shrink = 0.2, pad = 1.3)
+text(1,   -0.85, "Ethnicity",     col = "firebrick", font = 3, cex = 1.3)
+text(2.8, -0.85, "Childhood SEP", col = "firebrick", font = 3, cex = 1.3)
+text(4.6, -0.85, "Alcohol",       col = "firebrick", font = 3, cex = 1.3)
+text(7.3, -1.5,  "Accidents",     col = "firebrick", font = 3, cex = 1.3)
+text(5.5,  0.15, "Age",           col = "firebrick", font = 3, cex = 1.3)
+text(5.5, -3.15, "Sex",           col = "firebrick", font = 3, cex = 1.3)
+```
+
