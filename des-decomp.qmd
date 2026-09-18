@@ -1462,6 +1462,14 @@ dag_plot(dag,
 dag_plot(dag, curve = dag_curve, shrink = dag_shrink)
 ```
 
+::: {.fragment}
+::: {.textbox .dark .absolute top="40%" left="10%" width="75%"}
+**Research Question:**
+
+How much of inequality is due to other factors that are differential by $x$ (income) and also affect $y$ (health)?
+:::
+:::
+
 ## 
 
 ::::: columns
@@ -1476,7 +1484,7 @@ knitr::include_graphics(here("images", "conc-curve.png"))
 :::
 :::::
 
-## Formula for writing the Concentration Index
+## Relative Concentration Index
 
 :::: columns
 ::: {.column width="45%"}
@@ -1491,6 +1499,7 @@ where
 
 ::: {.column width = "5%"}
 ::::
+
 
 ::: {.column width = "45%"}
 
@@ -1548,13 +1557,7 @@ Where
 :::
 :::::
 
-::: {.fragment}
-::: {.textbox .dark .absolute top="60%" left="10%" width="75%"}
-How much of inequality is due to other factors that are differential by $x$ (income) and also affect $y$ (e.g., smoking)?
-:::
-:::
-
-## Explained and unexplained components
+## Explained and unexplained components {visibility="hidden"}
 
 <br>
 
@@ -1630,11 +1633,11 @@ $$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 :::
 
 ::: {.column width="75%"}
-4.  Calculate the absolute contribution of each determinant by multiplying its 'elasticity' by its concentration index $(CI_{k})$:
+4.  Absolute contribution: for each $x$ multiply 'elasticity' by its concentration index $(CI_{k})$:
 
 $$(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}$$
 
-5.  Calculate the percentage contribution of each determinant:
+5.  Calculate the % contribution of each determinant:
 
 $$[(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}]/RCI$$
 :::
@@ -1697,15 +1700,18 @@ ggplot(smoke_by_dec,
 Source: Author's calculations
 :::
 
-## 
+##
 
 ::::: columns
 ::: {.column width="25%"}
-### Concentration curve for smoking
+### What are we explaining?
+
+<br>
 
 Overall CI = -0.20
 
-The poorest 50% of the population accounts for around 70% of current smokers.
+<br>
+Smoking *more concentrated* among the poor
 :::
 
 ::: {.column width="75%"}
@@ -1745,6 +1751,8 @@ ci_label <- sprintf(
   ci_val, ci_lo, ci_hi
 )
 
+int_label <- "The poorest 50% \naccounts for 70% \nof current smokers"
+
 ggplot(curve_data, aes(x = cum_pop, y = cum_smoke)) +
   # Line of equality
   geom_abline(slope = 1, intercept = 0,
@@ -1756,8 +1764,14 @@ ggplot(curve_data, aes(x = cum_pop, y = cum_smoke)) +
               fill = "#2166ac", alpha = 0.12) +
   # CI text annotation
   annotate("text", x = 0.2, y = 0.85,
-           label = ci_label, hjust = 0, size = 4.2,
-           colour = "#2166ac", fontface = "bold", family = "sans") +
+    label = ci_label, hjust = 0, size = 4.2,
+    colour = "#2166ac", fontface = "bold", family = "sans") +
+  annotate("text", x = 0.6, y = 0.3, label = int_label,
+    colour = "#ED1B2F", hjust=0, size = 5) +
+   annotate(geom = "curve", x = 0.75, y = 0.4, 
+    xend = 0.5, yend = 0.65, curvature = 0.3,
+    arrow = arrow(length = unit(0.3, "cm")), 
+    color = "#ED1B2F", linewidth = 1) +
   scale_x_continuous(labels = scales::percent_format(),
                      breaks = seq(0, 1, 0.25), expand = c(0, 0)) +
   scale_y_continuous(labels = scales::percent_format(),
@@ -1814,16 +1828,16 @@ tt(smoke_model,
 ## Should we include income in the regression?
 
 ::: columns
-::: {.column width = "20%"}
-:::
-
-::: {.column width="80%"}
+::: {.column width = "50%"}
 Note that income decile (the *ranking variable*) is excluded from the regression.
 
 This is deliberate, since including it can be **misleading**:
 
 > "the residual component will be zero, or close to zero, suggesting that we have explained all or most of the variation in the Concentration Index"
 
+:::
+
+::: {.column width="50%"}
 Excluding it means the residual will:
 
 - Capture unexplained income-related variation
@@ -1839,27 +1853,33 @@ The appropriate interpretation is that the covariates in the model account for p
 See @kessels2013 and @erreygers2016
 :::
 
-## Estimation for a specific factor: Education
+## Step 2: Estimating elasticity for education
+
+$$RCI=\sum{ \underbrace{(\beta_{k}\bar{x}_{k}/\mu)}_{\text{elasticity}} RCI_{k}}+gRCI_{e}/\mu$$
 
 ::::: columns
-::: {.column width="20%"}
-:::
+::: {.column width="50%"}
 
-::: {.column width="80%"}
-$$RCI=\sum{(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}}+gRCI_{e}/\mu$$
-
-- Estimated $\beta$ coeff on low education (logit scale): 0.359 (OR = 1.43)
-- Marginal effect on probability scale: 0.024 (2.4 pct points)
+- $\beta_{\text{low education}}$ = 0.36 (OR = 1.4)
+- Marginal effect: 0.024
 - Mean low education: 0.452
 - Mean smoking rate: 7.3%
 
-With these parameters, the elasticity of smoking with respect to low education is: (0.024 \* 0.452 / .073) = 0.148
+:::
+
+::: {.column width="50%"}
+
+Elasticity of smoking for low education is: (0.024 \* 0.452 / .073) = 0.148
 
 Interpretation: a 1% increase in low education increases smoking by 14.8% (not percentage points!).
-
-What about the RCI for low education?
 :::
 :::::
+
+::: {.fragment}
+::: {.textbox .dark .absolute top="40%" left="15%" width="55%"}
+What about the RCI for low education?
+:::
+:::
 
 ::: footnote
 This is Step (2): Calculate the mean of $y$ $(\mu)$ and of each of the $x_{k}$ determinants
@@ -1869,9 +1889,12 @@ This is Step (2): Calculate the mean of $y$ $(\mu)$ and of each of the $x_{k}$ d
 
 ::::: columns
 ::: {.column width="25%"}
-### Concentration curve for low education
+
+Step 3: $RCI_{k}$
 
 Note the y-axis is cumulative share of *low education*
+
+<br>
 
 The poorest 50% account for roughly 60% of the share of low educated.
 :::
@@ -1920,23 +1943,21 @@ ggplot(educ_curve_data,
 This is Step (3): Calculate the $CI$ for each of the potential determinants $x_{k}$
 :::
 
-## 
+## Step 4: Calculate contributions
 
 ::::: columns
 ::: {.column width="25%"}
-### Estimation for a specific factor: Low education
+Estimation for a specific factor: Low education
 :::
 
 ::: {.column width="75%"}
-Recall the decomposition formula:
+$$RCI=\sum{ \underbrace{(\beta_{k}\bar{x}_{k}/\mu)}_{\text{elasticity}} RCI_{k}}+gRCI_{e}/\mu$$
 
-$$RCI=\sum{(\color{red}{\beta_{k}\bar{x}_{k}/\mu})\color{blue}{RCI_{k}}}+gRCI_{e}/\mu$$
+The elasticity of smoking (prior slide) = 0.148
 
-So the [elasticity of smoking]{.red} (from the previous slide) with respect to low education is (0.024 \* 0.452 / .073) = 0.148
+Now we have $RCI_{k}$ for low education = -0.265
 
-Now we have the [RCI for low education]{.blue} = -0.265
-
-So now we can calculate the contribution of low education as:
+The contribution of low education:
 
 $$\text{Elasticity}\times RCI_{ed} = 0.148 * -0.265 = -.039$$
 
@@ -1948,14 +1969,20 @@ $$\text{Elasticity}\times RCI_{ed} = 0.148 * -0.265 = -.039$$
 
 ::::: columns
 ::: {.column width="25%"}
-Decomposition of Income-Related Inequality in Smoking: Sweden
+RCI = -0.203
 
-Overall RCI = -0.203
+<br>
 
-Contributions of each factor can be positive or negative
+[(-) Binge drinking: ↑ smoking but more common at higher incomes]{.blue}
+
+<br>
+
+[(+) Married: ↓ smoking but more common at higher incomes]{.red}
+
 :::
 
 ::: {.column width="75%"}
+
 ```{r}
 ci_decomp <- readRDS(here("data", "ess-decomp.rds")) |>
   select(group, elasticity, ci_k, abs_contrib, pct_contrib)
@@ -1965,14 +1992,17 @@ colnames(ci_decomp) <- c("Variable", "Elasticity",
 
 tt(ci_decomp, digits = 3,
    notes = "Logistic regression; marginal effects used as elasticity weights.") |>
-  format_tt(j = 2:5, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  format_tt(j = 2:4, fn = \(x) ifelse(is.na(x), 
+    "—", sprintf("%.3f", x))) |>
+  format_tt(j = 5, fn = \(x) ifelse(is.na(x),
+    "-", sprintf("%.1f", x))) |>
   group_tt(j = list("Contribution" = 4:5)) |>
   style_tt(j = 1, align = "l") |>
-  style_tt(j = 2:5, align = "r")
+  style_tt(j = 2:5, align = "r") |>
+  style_tt(j = 1:5, fontsize = 0.8) |>
+  style_tt(i = 2, j = 5, color = "#377eb8") |>
+  style_tt(i = 6, j = 5, color = "#ED1B2F")
 ```
-
-- Binge drinking contribution is negative since it increases smoking but is more common among higher income.
-- Married contribution is positive since it decreases smoking but is more common among higher income.
 :::
 :::::
 
