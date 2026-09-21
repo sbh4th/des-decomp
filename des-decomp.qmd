@@ -12,7 +12,8 @@ format:
     slide-number: true
     html-math-method: mathjax
     auto-stretch: false
-    embed-resources: false
+    embed-resources: true
+    output-file: index.html
 title-slide-attributes:
     data-background-image: "images/mcgill-epi-logo.png"
     data-background-size: 30%
@@ -186,19 +187,27 @@ plot_kbo_coefs <- function() {
 }
 
 plot_endow_detail <- function() {
-  ggplot(endow_df,
+  # Same source and reference (GROUP_2 betas) as the summary tables, so the
+  # bars match the table values; endow_df holds GROUP_1-beta contributions
+  endow_plot_df <- decomp_tbl |>
+    dplyr::filter(section == "endow_var") |>
+    dplyr::transmute(variable = label, contribution = g2_est)
+  ggplot(endow_plot_df,
          aes(x = contribution,
              y = fct_reorder(variable, contribution),
              fill = contribution >= 0)) +
     geom_col(width = 0.6, show.legend = FALSE) +
     geom_vline(xintercept = 0, colour = "grey30", linewidth = 0.4) +
-    geom_text(aes(label = sprintf("%+.3f", contribution),
-                  hjust = if_else(contribution >= 0, -0.15, 1.15)),
+    geom_text(aes(label = sprintf("%+.3f (%.1f%%)", contribution,
+                                  100 * contribution / gap),
+                  hjust = if_else(contribution >= 0, -0.1, 1.1)),
               size = 4.5) +
     scale_fill_manual(values = c("TRUE" = GROUP_COLORS[1],
                                  "FALSE" = GROUP_COLORS[2])) +
-    scale_x_continuous(expand = expansion(mult = 0.3)) +
-    labs(x = paste0("Contribution to ", OUTCOME_LABEL, " gap"), y = NULL) +
+    scale_x_continuous(expand = expansion(mult = c(0.1, 0.35))) +
+    labs(x = paste0("Contribution to ", OUTCOME_LABEL, " gap (% of gap), ",
+                    GROUP_2, " betas"),
+         y = NULL) +
     theme_minimal(base_size = 16) +
     theme(panel.grid.major.y = element_blank(),
           panel.grid.minor   = element_blank())
@@ -358,7 +367,7 @@ dot_plot(dk_share, c(0, 45), "% of population", show_labels = FALSE)
 Source: Den Nationale Sundhedsprofil 2010 (Tabel 4.1.1) and 2025 (Tabel 3.1.3), Statens Institut for Folkesundhed / Sundhedsstyrelsen.
 :::
 
-##  {background-image="images/titmuss-cover.png" background-size="100px" background-repeat="repeat"}
+##  {background-image="images/titmuss-cover.png" background-size="100px" background-repeat="repeat"} {visibility="hidden"}
 
 ::: {.textbox .dark .absolute top="25%" left="8%" width="65%"}
 “But obviously the next stage is to break down the twelve-monthly death rates so far examined in order to discover [at what ages and from which causes inequality derives its strength]{.blue}" <br> <br> -Richard Titmuss (1943)
@@ -394,9 +403,14 @@ knitr::include_graphics(here("images",
 Seminal paper by @kitagawa1955
 :::
 
-## Slide on crude vs standardized trends?
+## {visibility="hidden"}
 
-## Consequences of ignoring composition
+```{r, out.width = "80%"}
+knitr::include_graphics(here("images", 
+  "dk-cancer.svg"))
+```
+
+## Potential consequences of ignoring composition
 
 ![](images/heller-2002-title.png)
 
@@ -407,25 +421,6 @@ Seminal paper by @kitagawa1955
 ::: footnote
 @heller2002
 :::
-
-## 
-
-```{r, out.width="65%"}
-knitr::include_graphics(here("images", 
-  "decomp-ex-spain.png"))
-```
-
-::: footnote
-[@jiménez-rubio2010]
-:::
-
-## Kitagawa: Why?
-
-Rate differences define inequalities
-
-Rates are complex, reflect both composition and incidence
-
-how much of it is because the groups differ in composition versus because the same factor matters differently for each group?
 
 ##
 
@@ -451,6 +446,9 @@ where $S_{i}$ is the share of group *i* in a *standard* population ($\sum_{i} S_
 :::
 
 ::: {.column width = "50%"}
+
+### Data for crude rates
+
 | Stratum | Pop | Count | Rate |
 |---------|:-----|------:|:------:|
 | $1$      | $n_{i}$   |  $y_{i}$ | $r_{i}$   |
@@ -513,66 +511,33 @@ But what are the weights?
 
 ##
 
-Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$
+::::: {.columns}
+::: {.column width = "15%"}
+:::
+
+::: {.column width = "85%"}
+
+Crude $A-B$ difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$
 
 → Reflects differences in both rates *and* composition
 
 <br>
 
-Standardized difference (A as standard) = 
+$A$-Standardized $A-B$ difference = 
 $\sum P_{Ai}R_{Ai} - \sum P_{Ai}R_{Bi}$
 
 → Reflects *only* differences in rates ($P_{Ai}$ is constant)
 
 <br>
 
-Crude - Standardized: $\sum R_{Bi}(P_{Ai}-P_{Bi})$
+::: {.fragment}
+Crude - Standardized = $\sum R_{Bi}(P_{Ai}-P_{Bi})$
 
 → Differences in composition, *weighted* by $B$s rates!
-
-## Need, task, and the main message {.vcenter}
-
-::: {.roomy}
-::: {.msg-list}
-::: {.msg-item}
-**Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$**\
-The gap between the actual and desired situation — why this talk exists.
-:::
-
-::: {.msg-item}
-**Task**\
-What you did (or will argue) to address that gap.
-:::
-
-::: {.msg-item}
-**Message**\
-The one sentence you want remembered if nothing else is.
-:::
-:::
-:::
-
-##
-
-::: {.roomy}
-::: {.msg-list}
-::: {.msg-item}
-Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$\
-Reflects differences in both rates *and* composition
-:::
-
-::: {.msg-item}
-Standardized difference (A as standard) = 
-$\sum P_{Ai}R_{Ai} - \sum P_{Ai}R_{Bi}$\
-Reflects *only* differences in rates ($P_{Ai}$ is constant)
-:::
-
-::: {.msg-item}
-Crude - Standardized: $\sum R_{Bi}(P_{Ai}-P_{Bi})$\
-Differences in composition, *weighted* by $B$s rates!
 :::
 
 :::
-:::
+::::::
 
 ## Applying the decomposition
 
@@ -602,14 +567,14 @@ $P_{Ai}$ is the *i*-stratum-specific weight in group *A*.
 </tr>
 </thead>
 <tbody>
-<tr>
+<tr class="blue">
 <td style="padding:4px 8px; border:none;">Young</td>
 <td style="text-align:center; border:none;">30%</td>
 <td style="text-align:center; border:none;">10</td>
 <td style="text-align:center; border:none;">50%</td>
 <td style="text-align:center; border:none;">20</td>
 </tr>
-<tr>
+<tr class="red">
 <td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">70%</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">40</td>
@@ -637,13 +602,13 @@ $P_{Ai}$ is the *i*-stratum-specific weight in group *A*.
 </tr>
 </thead>
 <tbody>
-<tr class="fragment" data-fragment-index="0">
+<tr class="fragment blue" data-fragment-index="0">
 <td style="padding:4px 8px; border:none;">Young</td>
 <td style="text-align:center; border:none;">15</td>
 <td style="text-align:center; border:none;">−0.20</td>
 <td style="text-align:center; border:none;">−3.0</td>
 </tr>
-<tr class="fragment" data-fragment-index="1">
+<tr class="fragment red" data-fragment-index="1">
 <td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">35</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
@@ -674,13 +639,13 @@ $P_{Ai}$ is the *i*-stratum-specific weight in group *A*.
 </tr>
 </thead>
 <tbody>
-<tr class="fragment" data-fragment-index="0">
+<tr class="fragment blue" data-fragment-index="0">
 <td style="padding:4px 8px; border:none;">Young</td>
 <td style="text-align:center; border:none;">0.40</td>
 <td style="text-align:center; border:none;">−10</td>
 <td style="text-align:center; border:none;">−4.0</td>
 </tr>
-<tr class="fragment" data-fragment-index="1">
+<tr class="fragment red" data-fragment-index="1">
 <td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">0.60</td>
 <td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
@@ -701,7 +666,7 @@ $P_{Ai}$ is the *i*-stratum-specific weight in group *A*.
 <br>
 Total = **+6.0** = crude gap (31 − 25) [→67% due to composition]{.blue} 
 
-Rate effect (+2) = standardized gap (28 − 26)
+Rate effect (+2) = standardized gap (avg reference) (28 − 26)
 :::
 
 ## Kitagawa: does the reference group matter?
@@ -737,171 +702,6 @@ tt(toy_ref, width = 0.75) |>
 Crude gap = `r crude_a` − `r crude_b` = **`r crude_a - crude_b`** in every row; only the split changes
 
 The one-sided rows differ by the interaction, $\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})$ = `r sprintf("%.1f", inter)`, which the average splits evenly
-
-::: footnote
-Same toy example as the previous slides. The rate difference changes sign between strata (B higher when young, lower when old), so the one-sided answers diverge sharply: A's rates as reference attribute the whole gap to composition (rate effect 0); B's rates give rate +4.
-:::
-
-## Kitagawa's three-component version
-
-::: {style="font-size:0.5em;"}
-$$\underbrace{\text{Rate}_A - \text{Rate}_B}_{\text{crude difference}} = \overbrace{\sum_i R_{Bi}(P_{Ai}-P_{Bi})}^{\text{composition}} + \overbrace{\sum_i P_{Bi}(R_{Ai}-R_{Bi})}^{\text{rate}} + \overbrace{\sum_i (R_{Ai}-R_{Bi})(P_{Ai}-P_{Bi})}^{\text{interaction}}$$
-:::
-
-::::: {.columns}
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="0"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">20</td>
-<td style="text-align:center; border:none;">−0.20</td>
-<td style="text-align:center; border:none;">−4.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">30</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">+2.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="1"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">0.50</td>
-<td style="text-align:center; border:none;">−10</td>
-<td style="text-align:center; border:none;">−5.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.50</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+5.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">0.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="2"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Interaction</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">−10</td>
-<td style="text-align:center; border:none;">−0.20</td>
-<td style="text-align:center; border:none;">+2.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+2.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">+4.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-:::::
-
-::: {.fragment data-fragment-index="3"}
-<br>
-Total = +2.0 + 0.0 + 4.0 = **+6.0** = crude gap (31 − 25)
-:::
-
-::: {.fragment data-fragment-index="4"}
-Add the interaction to composition: +6.0 and 0.0 (A's rates). Add it to rate: +2.0 and +4.0 (B's rates).
-:::
-
-##
-
-::::: {.columns .valign-center}
-::: {.column width="50%"}
-### What contributes to a difference?
-
-1.  Group differences in stratum-specific rates <br>
-
-2.  Group differences in composition of strata
-
-<br>
-
-"Group" can be social or time
-:::
-
-::: {.column width="50%"}
-```{r}
-knitr::include_graphics(here("images",
-  "kitagawa.png"))
-```
-:::
-:::::
-
-::: footnote
-Seminal paper by @kitagawa1955
-:::
 
 ## 
 
@@ -982,7 +782,7 @@ sartorius_dist <- tibble(
 
 ## 
 
-### Denmark and Austria: higher NMR at lower GA, lower at higher GA
+### Denmark has much worse rates at early GA
 
 ```{r fig.width=11, fig.height=5}
 inset_levels <- c("32-36", "37-41", "≥42")
@@ -1047,7 +847,7 @@ rate_main_plot +
 
 ## 
 
-### Distribution of GA: DK shifted left, AT shifted right
+### Austria more births at earlier GA
 
 ```{r fig.width=11, fig.height=5}
 inset_levels_d <- c("22-23", "24-25", "26-27")
@@ -1110,52 +910,118 @@ dist_main_plot +
   inset_element(dist_inset_plot, left = 0.01, bottom = 0.15, right = 0.40, top = 0.98)
 ```
 
+::: {.fragment}
+::: {.textbox .dark .absolute top="40%" left="10%" width="75%"}
+**Implications for interventions**
+
+DK: improving care at early GA  
+
+AT: shifting the distribution of GA later
+:::
+:::
+
 ::: footnote
 @sartorius2024
+:::
+
+## Summary: Kitagawa's decomposition {.vcenter}
+
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**When to use**\
+Comparing rates across groups or over time when their composition differs
+:::
+
+::: msg-item
+**Extensions**\
+More than two groups or factors; three-part decomposition
+:::
+
+::: msg-item
+**Caveats**\
+Not causal; results depend on the strata used and on the reference weights
+:::
+::::::
+:::::::
+
+::: footnote
+@kitagawa1955; @dasgupta1993
 :::
 
 {{< include _plan.qmd >}}
 
 # 2. Oaxaca–Blinder Decomposition {#oaxaca}
 
-## Idea for Decomposition of Means
+## Oaxaca-Blinder: Basic Idea
 
-:::::: columns
-::: {.column width="45%"}
+### [What explains average differences in outcomes? In a regression context:]{.black}
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
 <br>
 
-The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
+### 1. Means
 
-Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
-:::
+#### [Differences in the prevalence of determinants of outcome]{.black}
 
-::: {.column width="5%"}
-:::
-
-::: {.column width="45%"}
 <br>
 
-Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
+### 2. Coefficients
 
-"Unpacking" or "decomposing" difference.
+#### [Differences in the coefficient of a given determinant on the outcome (i.e., effect measure modification)]{.black}
 :::
-::::::
+:::::
+
+## 
+
+::::: columns
+::: {.column width="30%"}
+```{r}
+knitr::include_graphics(here("images", 
+  "jiminez-2011-title.png"))
+```
+:::
+
+::: {.column width="70%"}
+
+> Our findings show that [unexplained factors associated to immigrant status]{.blue} determine to a great extent disparities in the probability of using hospital, specialist and emergency services of immigrants relative to Spaniards, while individual characteristics, in particular self-reported health and chronic conditions, are much more important in explaining the differences in the probability of using general practitioner services between immigrants and Spaniards
+
+:::
+:::::
+
+::: footnote
+@jiménez-rubio2010
+:::
 
 ## Origins
 
 ::::: columns
-::: {.column width="25%"}
+::: {.column width="30%"}
 ```{r}
-knitr::include_graphics(here("images", "kitagawa-title.png"))
+knitr::include_graphics(here("images", "oaxaca-plos.png"))
 ```
 :::
 
-::: {.column width="75%"}
+::: {.column width="70%"}
 Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
 
-- Focused on how much of wage gap was 'explained' by differences in observable characteristics
+<br>
+
+Focused on how much of wage gap was 'explained' by differences in observable characteristics
+
+<br>
+
+Recent attempts to reconcile O-B with Kitagawa (equivalent for binary outcome and categorical covariates)
 :::
 :::::
+
+::: footnote
+@oaxaca2025
+:::
 
 ## Brief note on interpretation
 
@@ -1178,37 +1044,6 @@ If regressions are purely descriptive, they reveal the associations that charact
 ::: footnote
 @odonnell2008
 :::
-
-## Oaxaca-Blinder: Basic Idea
-
-### [What explains average differences in outcomes?]{.black}
-
-::::: columns
-::: {.column width="25%"}
-:::
-
-::: {.column width="75%"}
-<br>
-
-### 1. Means
-
-#### [Differences in the prevalence of determinants of outcome]{.black}
-
-<br>
-
-### 2. Coefficients
-
-#### [Differences in the coefficient of a given determinant on the outcome (i.e., effect measure modification)]{.black}
-:::
-:::::
-
-## If this sounds familiar...
-
-O-B decomp is a generalization of Kitagawa
-
-<br>
-
-Equivalent for binary outcome and categorical covariates
 
 ## 
 
@@ -1516,7 +1351,7 @@ What is the average difference in body mass index (BMI) between those with low v
 
 <br>
 
-How much of this difference is due to the fact that determinants of BMI (age, gender, smoking, drinking, income) *differ* between education groups?
+How much is due to *differing determinants* of BMI (age, gender, smoking, drinking, income)?
 
 <br>
 
@@ -1532,7 +1367,7 @@ Body mass index as outcome (kg/m²): `weight / height²`
 
 Overall difference by education: `r GROUP_1` (ISCED 5–7) vs `r GROUP_2` (ISCED 1–4)
 
-Potential determinants (the Xs):
+Potential determinants (the $X$s):
 
 - age (years)
 - gender (female = 1)
@@ -1631,7 +1466,7 @@ Pooled (Cotton) betas give a symmetric reference — no interaction term; the th
 
 ## Decomposition results: variable contributions
 
-Endowments: 38%; Coefficients: 62%
+Overall gap = `r round(gap, 2)` kg/m². Endowments: 38%; Coefficients: 62%
 
 ```{r}
 #| label: decomp-wide-table
@@ -1668,7 +1503,9 @@ tt(disp, width = 0.9) |>
   style_tt(i = bold_rows, bold = TRUE)
 ```
 
-`r GROUP_2` betas used as reference; rows show each variable's contribution to the overall gap of `r round(gap, 2)` kg/m²
+::: footnote
+Note: `r GROUP_2` betas used as reference
+:::
 
 ## Summary: [Endowments = 38%]{.red}, Coefficients = 62%
 
@@ -1704,11 +1541,11 @@ tt(disp, width = 1) |>
 :::
 
 ::: {.column width="45%"}
-Interpretation:
+If the low-educated had the same covariate means as the high-educated (keeping the low-educated group's own coefficients), their BMI would be 0.608 $kg/m^2$ lower — closing 38% of the gap.
 
-- If the low-educated had the same covariate means as the high-educated (keeping the low-educated group's own coefficients), their BMI would be 0.608 $kg/m^2$ lower — closing 38% of the gap.
+<br>
 
-- Most of this is due to older age among the low-educated, which predicts higher BMI.
+Most of this is due to older age among the low-educated, which predicts higher BMI.
 :::
 ::::::
 
@@ -1716,11 +1553,11 @@ Interpretation:
 
 :::::: columns
 ::: {.column width="45%"}
-Interpretation:
+If the high-educated group's covariates had the same relationship with BMI as they do in the low-educated group, their BMI would be 1.030 higher, accounting for 62% of the gap.
 
-- If the high-educated group's covariates had the same relationship with BMI as they do in the low-educated group, their BMI would be 1.030 higher, accounting for 62% of the gap.
+<br>
 
-- Note smoking is negative, since smoking predicts higher BMI among the high-educated and is more common among high educated.
+Smoking is *negative*, since smoking predicts higher BMI among the high-educated and is more common among high educated.
 :::
 
 ::: {.column width="5%"}
@@ -1772,7 +1609,7 @@ plot_endow_detail()
 ## Decomposition results: does the reference group matter?
 
 ```{r}
-#| fig-height: 5
+#| fig-height: 4.5
 ref_lab <- c(paste(GROUP_2, "betas"), paste(GROUP_1, "betas"), "Pooled betas")
 
 ref_sum <- decomp_tbl |>
@@ -1809,20 +1646,51 @@ ggplot(ref_sum, aes(x = component, y = value, fill = ref)) +
 
 Endowments account for **`r round(100 * min(endow_share))`–`r round(100 * max(endow_share))`%** of it; interaction is negligible
 
-## **Break!** `r emo::ji("coffee")`
+## Summary: Oaxaca–Blinder decomposition {.vcenter}
 
-```{r, echo=F}
-countdown(minutes = 5, 
-          left = 0, right = 0, bottom = "15%", top = "15%",
-          padding = "50px",
-          margin = "5%",
-          font_size = "7em",
-          color_text= '#377eb8')
-```
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**When to use**\
+Explaining average gaps with potential determinants
+:::
+
+::: msg-item
+**Extensions**\
+Nonlinear outcomes (binary, counts); pooled reference coefficients; variable-by-variable contributions
+:::
+
+::: msg-item
+**Caveats**\
+Not causal; split depends on the reference group and, for categorical covariates, the omitted category
+:::
+::::::
+:::::::
+
+::: footnote
+@oaxaca1973; @blinder1973; @cotton1988a
+:::
 
 {{< include _plan.qmd >}}
 
 # 3. Concentration Index Decomposition {#concentration}
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Relative Concentration Curve
+<br>
+
+Explicity accounts for changing composition
+:::
+
+::: {.column width="75%"}
+```{r, fig.height=6, fig.width = 8.5}
+knitr::include_graphics(here("images", "conc-curve.png"))
+```
+:::
+:::::
 
 ## We want to understand this:
 
@@ -1852,20 +1720,6 @@ dag_plot(dag, curve = dag_curve, shrink = dag_shrink)
 How much of inequality is due to other factors that are differential by $x$ (income) and also affect $y$ (health)?
 :::
 :::
-
-## 
-
-::::: columns
-::: {.column width="25%"}
-### Relative Concentration Curve
-:::
-
-::: {.column width="75%"}
-```{r, fig.height=6, fig.width = 8.5}
-knitr::include_graphics(here("images", "conc-curve.png"))
-```
-:::
-:::::
 
 ## Relative Concentration Index
 
@@ -2207,7 +2061,7 @@ tt(smoke_model,
 ```
 :::
 
-## Should we include income in the regression?
+## Should we include income in the regression? {visibility="hidden"}
 
 ::: columns
 ::: {.column width = "50%"}
@@ -2251,7 +2105,7 @@ $$RCI=\sum{ \underbrace{(\beta_{k}\bar{x}_{k}/\mu)}_{\text{elasticity}} RCI_{k}}
 
 ::: {.column width="50%"}
 
-Elasticity of smoking for low education is: (0.024 \* 0.452 / .073) = 0.148
+Elasticity for low education is: (0.024 \* 0.452 / .073) = 0.148
 
 Interpretation: a 1% increase in low education increases smoking by 14.8% (not percentage points!).
 :::
@@ -2410,36 +2264,66 @@ knitr::include_graphics(here("figs", "ess11_decomp_bar.png"))
 See @odonnell2008; @hosseinpoor2006
 :::
 
-## Caveats for decomposing the RCI
+## Summary: Concentration index decomposition {.vcenter}
 
-::::: columns
-::: {.column width="25%"}
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**When to use**\
+Summarizing with RCI and asking which determinants drive it
 :::
 
-::: {.column width="75%"}
-<br>
-
-Decomposition results will be sensitive to the choice of determinants included (i.e., how well-specified the model is for predicting $y$).
-
-<br>
-
-The regression equations are predictive and not causal models.
-
-<br>
-
-Main utility is not in estimating the potential impact on $y$ of changing the distribution of socioeconomic position, but in indicating the potential role that other factors may play in generating socioeconomic inequalities in health.
+::: msg-item
+**Extensions**\
+Nonlinear models; Oaxaca-type decomposition of differences and temporal changes
 :::
-:::::
+
+::: msg-item
+**Caveats**\
+The explained share depends on which determinants enter; associations are predictive, not causal
+:::
+::::::
+:::::::
+
+::: footnote
+@wagstaff2003; @kakwani1997; @odonnell2008; @erreygers2016
+:::
 
 {{< include _plan.qmd >}}
 
 # 4. Interventional Decomposition {#intervention}
 
-## Why 'interventional'?
+## Origins: Why 'interventional'?
 
-- Kitagawa, B-0, CI decomp all 'descriptive'
+::::: {.columns}
+::: {.column width="25%"}
+```{r}
+knitr::include_graphics(here("images",
+  "cda-jackson-2018-title.png"))
+```
+:::
 
-- What if we intervened?
+::: {.column width="75%"}
+Prior decompositions (e.g., Kitagawa, O-B) 'descriptive'
+
+<br>
+
+Causal mediation challenges
+
+<br>
+
+Challenges with non-manipulable exposures
+
+<br>
+
+
+**How much would gaps change if we intervened on a target?**
+:::
+:::::
+
+::: footnote
+@jackson2018
+:::
 
 ## Many recent developments
 
@@ -2451,24 +2335,20 @@ Reconciling the descriptive framework of KBO with causal inference.
 See @jackson2018; @jackson2021; @lundberg2024; @yu2025; @jackson2025; @opacic2026 
 :::
 
-
-## Challenges with 'categories'
-
-## Different from causal mediation
-
 ## Youth accident deaths: what would we intervene on? {.smaller}
 
 ::::: columns
 ::: {.column width="62%"}
-- Danish-origin 15--24-year-olds die in accidents more often than immigrant-origin peers (IRR 0.59 first-generation, 0.93 second-generation)
+Danish-origin adolescents die in accidents more often than immigrant-origin peers (IRR 1.7 vs first-generation)
 
-- Alcohol is a plausible pathway: 16% of fatal accidents; Danish origin has 4.0 times the odds of an alcohol-related death
+<br>
 
-- Drinking itself was not measured --- abstention is assumed
+Alcohol is a plausible pathway: 16% of fatal accidents; Danish-origin has 4x the odds of an alcohol-related death
 
-- Complication: immigrant-origin families are poorer, so adjusting for income *widens* the gap (0.59 → 0.39)
+<br>
 
-- **What if** Danish-origin youth drank like their immigrant-origin peers?
+But immigrant-origin families are poorer, so adjusting for income *widens* the gap (IRR 1.7 → 2.6)
+
 :::
 
 ::: {.column width="38%"}
@@ -2484,11 +2364,16 @@ knitr::include_graphics(here("images",
 :::
 :::::
 
+::: {.fragment}
+**What if** Danish-origin youth drank like their immigrant-origin peers?
+:::
+
 ::: footnote
 @udesen2023; @kruckow2024 (ethnic IRRs inverted from Kruckow supplementary table 2)
 :::
 
-##
+
+## Conceptualizing the DAG (assumptions)
 
 ```{r}
 dag2 <- dagitty("dag {
@@ -2524,15 +2409,164 @@ text(5.5,  0.15, "Age",           col = "firebrick", font = 3, cex = 1.3)
 text(5.5, -3.15, "Sex",           col = "firebrick", font = 3, cex = 1.3)
 ```
 
-##
+## Different from causal mediation (still valid)
+
+```{r}
+# same DAG and layout as the previous slide; the mediation paths are
+# drawn in white so the picture stays identical
+dag2 <- dagitty("dag {
+  E -> C
+  C -> A
+  A -> D
+  E -> A
+  E -> D
+  C -> D
+  G -> A
+  G -> D
+  S -> A
+  S -> D
+}")
+
+coordinates(dag2) <- list(
+  x = c(E = 1, C = 2.8, A = 4.6, D = 6.4, G = 5.5, S = 5.5),
+  y = c(E = 1.5, C = 1.5, A = 1.5, D = 1.5, G = 0.3, S = 2.7)
+)
+
+curve2 <- list(
+  "E->A" = c(0, 0.6),
+  "C->D" = c(0, -0.6),
+  "E->D" = c(0, -1.3)
+)
+
+dag_plot(dag2, curve = curve2, shrink = 0.2, pad = 1.3,
+  edge_col = c("__default__" = "black",
+               "E->C" = "white",
+               "E->A" = "white",
+               "E->D" = "white"))
+text(1,   -0.85, "Ethnicity",     col = "firebrick", font = 3, cex = 1.3)
+text(2.8, -0.85, "Childhood SEP", col = "firebrick", font = 3, cex = 1.3)
+text(4.6, -0.85, "Alcohol",       col = "firebrick", font = 3, cex = 1.3)
+text(7.3, -1.5,  "Accidents",     col = "firebrick", font = 3, cex = 1.3)
+text(5.5,  0.15, "Age",           col = "firebrick", font = 3, cex = 1.3)
+text(5.5, -3.15, "Sex",           col = "firebrick", font = 3, cex = 1.3)
+```
+
+## 
+
+::::: columns
+::: {.column width="20%"}
+Steps for pursuing interventional decomposition
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="75%"}
+
+:::::: msg-list
+::: msg-item
+**1 Define the gap and intervention**\
+Consider feasibility, implementation
+:::
+
+::: msg-item
+**2 Draw the DAG**\
+Which covariates to adjust for (allowability)
+:::
+
+::: msg-item
+**3 Defend the assumptions**\
+Exchangeability; positivity; consistency
+:::
+
+::: msg-item
+**4 Estimate the model**\
+Outcome model, weighting, doubly robust
+:::
+
+::: msg-item
+**5 Compare factual and counterfactual**\
+Consider effect scale, uncertainty
+:::
+:::::: 
+
+:::
+:::::
+
+::: footnote
+@jackson2018; @jackson2021; @lundberg2024
+:::
+
+## Recent example
+
+::::: {.columns}
+::: {.column width = "50%"}
 
 ```{r}
 knitr::include_graphics(here("images",
   "moller-2026-title.png"))
 ```
+:::
+
+::: {.column width = "50%"}
+```{r}
+knitr::include_graphics(here("images",
+  "moller-dag.png"))
+```
+:::
+:::::
+
+> we estimate the expected 1-year mortality among the low-income patients in a hypothetical world where they initiated medication as often as high-income patients...
 
 ::: footnote
 @møller2026
+:::
+
+## Moller results
+
+::::: {.columns}
+::: {.column width = "50%"}
+
+```{r}
+knitr::include_graphics(here("images",
+  "moller-figure.png"))
+```
+:::
+
+::: {.column width = "50%"}
+
+> IDIE-exposed is the expected reduction in 1-year mortality among low-income heart failure patients in a hypothetical world where they initiated medication with the same probability as observed among similar high-income patients, rather than their observed probability.
+
+:::
+:::::
+
+::: footnote
+@møller2026
+:::
+
+## Summary: Interventional decomposition {.vcenter}
+
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**When to use**\
+Counterfactual inequality under a hypothetical intervention on a mediator
+:::
+
+::: msg-item
+**Extensions**\
+Gap-closing estimand; weighting framework; nonparametric estimation
+:::
+
+::: msg-item
+**Caveats**\
+Causal assumptions; well-defined intervention; choices about 'allowable' covariates
+:::
+::::::
+:::::::
+
+::: footnote
+@jackson2018; @jackson2021; @lundberg2024; @yu2025; @møller2026
 :::
 
 ## Summary
@@ -2544,14 +2578,11 @@ knitr::include_graphics(here("images",
 ::: {.column width="75%"}
 <br>
 
-Various decomposition techniques exist that may be useful for analyzing social determinants of health:
+Various decomposition techniques exist that may be useful for analyzing social inequalities in health
 
-- Regression-based decomposition of Concentration Index
-- Oaxaca decomposition of mean health between groups
+Moves beyond measuring to explanations and interventions
 
-All of these techniques make assumptions that need to be evaluated in the course of analysis.
-
-When used properly, decomposition techniques can help to provide key evidence on why health inequalities exist and change over time.
+Used responsibly, they can help to provide key evidence on why health inequalities exist and change over time.
 :::
 :::::
 
@@ -2559,3 +2590,155 @@ When used properly, decomposition techniques can help to provide key evidence on
 
 ::: {#refs}
 :::
+
+# Backup
+
+## Backup: Kitagawa's three-component version {#backup-three-component}
+
+::: {style="font-size:0.5em;"}
+$$\underbrace{\text{Rate}_A - \text{Rate}_B}_{\text{crude difference}} = \overbrace{\sum_i R_{Bi}(P_{Ai}-P_{Bi})}^{\text{composition}} + \overbrace{\sum_i P_{Bi}(R_{Ai}-R_{Bi})}^{\text{rate}} + \overbrace{\sum_i (R_{Ai}-R_{Bi})(P_{Ai}-P_{Bi})}^{\text{interaction}}$$
+:::
+
+::::: {.columns}
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="0"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">20</td>
+<td style="text-align:center; border:none;">−0.20</td>
+<td style="text-align:center; border:none;">−4.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">30</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">+2.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="1"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">0.50</td>
+<td style="text-align:center; border:none;">−10</td>
+<td style="text-align:center; border:none;">−5.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.50</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+5.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">0.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="2"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Interaction</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">−10</td>
+<td style="text-align:center; border:none;">−0.20</td>
+<td style="text-align:center; border:none;">+2.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+2.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">+4.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+:::::
+
+::: {.fragment data-fragment-index="3"}
+<br>
+Total = +2.0 + 0.0 + 4.0 = **+6.0** = crude gap (31 − 25)
+:::
+
+::: {.fragment data-fragment-index="4"}
+Add the interaction to composition: +6.0 and 0.0 (A's rates). Add it to rate: +2.0 and +4.0 (B's rates).
+:::
+
+##
+
+::::: {.columns}
+::: {.column width = "20%"}
+
+Overall contributions are *net*
+:::
+
+::: {.column width = "80%"}
+```{r, out.width="90%"}
+knitr::include_graphics(here("images",
+  "sartorius_kitagawa_by_stratum.png"))
+```
+:::
+:::::
