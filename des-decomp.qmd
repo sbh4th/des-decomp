@@ -517,13 +517,13 @@ But what are the weights?
 
 ::: {.column width = "85%"}
 
-Crude $A-B$ difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$
+Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$
 
 → Reflects differences in both rates *and* composition
 
 <br>
 
-$A$-Standardized $A-B$ difference = 
+$A$-Standardized difference = 
 $\sum P_{Ai}R_{Ai} - \sum P_{Ai}R_{Bi}$
 
 → Reflects *only* differences in rates ($P_{Ai}$ is constant)

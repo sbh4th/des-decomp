@@ -74,7 +74,7 @@
     "href": "index.html#section-4",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
-    "text": "Crude \\(A-B\\) difference = \\(\\sum P_{Ai}R_{Ai} - \\sum P_{Bi}R_{Bi}\\)\n→ Reflects differences in both rates and composition\n\n\\(A\\)-Standardized \\(A-B\\) difference = \\(\\sum P_{Ai}R_{Ai} - \\sum P_{Ai}R_{Bi}\\)\n→ Reflects only differences in rates (\\(P_{Ai}\\) is constant)\n\n\nCrude - Standardized = \\(\\sum R_{Bi}(P_{Ai}-P_{Bi})\\)\n→ Differences in composition, weighted by \\(B\\)s rates!"
+    "text": "Crude difference = \\(\\sum P_{Ai}R_{Ai} - \\sum P_{Bi}R_{Bi}\\)\n→ Reflects differences in both rates and composition\n\n\\(A\\)-Standardized difference = \\(\\sum P_{Ai}R_{Ai} - \\sum P_{Ai}R_{Bi}\\)\n→ Reflects only differences in rates (\\(P_{Ai}\\) is constant)\n\n\nCrude - Standardized = \\(\\sum R_{Bi}(P_{Ai}-P_{Bi})\\)\n→ Differences in composition, weighted by \\(B\\)s rates!"
   },
   {
     "objectID": "index.html#applying-the-decomposition",
