@@ -6,8 +6,8 @@
 <script src="scratch_files/libs/quarto-html/tippy.umd.min.js"></script>
 <link href="scratch_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="scratch_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="scratch_files/libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.8.26">
+<link href="scratch_files/libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.30">
 
   <title>scratch</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,8 +27,28 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
-  </style>
-  <link rel="stylesheet" href="scratch_files/libs/revealjs/dist/theme/quarto-7105b51c1da50e9405ff21b6f32c15b4.css">
+    /* CSS for citations */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+      margin-bottom: 0em;
+    }
+    .hanging-indent div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }  </style>
+  <link rel="stylesheet" href="scratch_files/libs/revealjs/dist/theme/quarto-7d6341dfe86951c7e6a7bb24b6637a9f.css">
   <link href="scratch_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="scratch_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="scratch_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -167,7 +187,7 @@
 </div>
 </div>
 </section>
-<section id="danish-smoking-has-declined-from-21-2010-to-11-2025" class="slide level2 smaller">
+<section id="danish-smoking-has-declined-from-21-2010-to-11-2025" class="slide level2 smaller scrollable">
 <h2>Danish smoking has declined from 21% (2010) to 11% (2025)</h2>
 <div class="columns">
 <div class="column" style="width:55%;">
@@ -197,8 +217,14 @@
 </div></div>
 <div class="footnote">
 <p>Source: Den Nationale Sundhedsprofil 2010 (Tabel 4.1.1) and 2025 (Tabel 3.1.3), Statens Institut for Folkesundhed / Sundhedsstyrelsen.</p>
+<p><span class="citation" data-cites="møller2026">(<a href="#/danish-smoking-has-declined-from-21-2010-to-11-2025" role="doc-biblioref" onclick="">Møller et al. 2026</a>)</span></p>
 </div>
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-møller2026" class="csl-entry" role="listitem">
+Møller, Amalie Lykkemark, Kathrine Kold Sørensen, Nerissa Nance, Julie Thietje Mortensen, Thomas Alexander Gerds, Christian Torp-Pedersen, and Helene Charlotte Wiese Rytgaard. 2026. <span>“Estimating Effects of Targeted Public Health Interventions Using the Interventional Disparity Indirect Effect Among the Exposed.”</span> <em>Journal of Epidemiology and Community Health</em> 80 (5): 309–15. <a href="https://doi.org/10.1136/jech-2025-224627">https://doi.org/10.1136/jech-2025-224627</a>.
+</div>
+</div>
 </section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
@@ -501,14 +527,13 @@
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-          const outerScaffold = trigger.parentElement.cloneNode(true);
-          const codeEl = outerScaffold.querySelector('code');
-          for (const childEl of codeEl.children) {
-            if (isCodeAnnotation(childEl)) {
-              childEl.remove();
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
             }
-          }
-          return codeEl.innerText;
+            return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

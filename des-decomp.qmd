@@ -2,7 +2,7 @@
 title: "Decomposition Techniques for Social Epidemiology: Why and How"
 subtitle: "Danish Epidemiological Society Conference"
 author: "Sam Harper"
-date: 2026-08-22
+date: 2026-09-22
 date-format: iso
 format:
   revealjs:
@@ -110,6 +110,7 @@ tt_decomp <- function(show_cols = 3, hi_section = NULL) {
     format_tt(j = 2:7, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
     group_tt(j = sub_header) |>
     group_tt(j = top_header) |>
+    style_tt(fontsize = 0.7) |>
     style_tt(j = 1,   align = "l") |>
     style_tt(j = 2:7, align = "r") |>
     style_tt(i = sep_row,  line = "b",
@@ -203,6 +204,52 @@ plot_endow_detail <- function() {
           panel.grid.minor   = element_blank())
 }
 ```
+
+## Social Epidemiologic Aims {.vcenter}
+
+::::::: roomy
+:::::: msg-list
+::: msg-item
+**Descriptive**\
+Existence of social differences in health
+:::
+
+::: msg-item
+**Etiologic**\
+Causes of social differences in health
+:::
+
+::: msg-item
+**Interventions**\
+Policies and programs to address causes
+:::
+::::::
+:::::::
+
+## Enough already?
+
+::::: {.columns}
+::: {.column width="60%"}
+
+> Nevertheless, health inequalities are socially produced, and therefore, also potentially avoidable. However, effective political interventions require a scientific understanding of the causal mechanisms generating the strong and persistent correlations between social conditions and health outcomes.
+
+:::
+
+::: {.column width = "40%"}
+```{r}
+knitr::include_graphics(here("images",
+  "eikemo-2019-title.png"))
+```
+:::
+:::::
+
+::: {.fragment}
+### How can we find out?
+:::
+
+::: footnote
+@eikemo2019
+:::
 
 ## Decomposition: from description to explanation {.vcenter}
 
@@ -336,90 +383,29 @@ knitr::include_graphics(here("images",
 :::
 :::::
 
+::: {.fragment}
+
+<br>
+
+### 'Unpacking' the difference between crude rates of two groups
+:::
+
 ::: footnote
 Seminal paper by @kitagawa1955
 :::
 
-## Overview {.h2center}
+## Slide on crude vs standardized trends?
 
-<br>
+## Consequences of ignoring composition
 
-### [Concentration Index Decomposition]{.gray}
+![](images/heller-2002-title.png)
 
-<br>
+> may give a distorted view of the overall level of health inequality due to social class differentials as it does not take into account the changing distribution of social class within the whole population.
 
-### [Kitagawa-Blinder-Oaxaca Decomposition]{.black}
-
-## Idea for Decomposition of Means
-
-:::::: columns
-::: {.column width="45%"}
-<br>
-
-The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
-
-Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
-:::
-
-::: {.column width="5%"}
-:::
-
-::: {.column width="45%"}
-<br>
-
-Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
-
-"Unpacking" or "decomposing" difference.
-:::
-::::::
-
-## Origins
-
-::::: columns
-::: {.column width="25%"}
-```{r}
-knitr::include_graphics(here("images", "kitagawa-title.png"))
-```
-:::
-
-::: {.column width="75%"}
-Evelyn Kitagawa [-@kitagawa1955] was a sociologist and demographer who devised a non-parametric method for decomposing differences between rates, refined by Prithwis das Gupta in 1978.
-
-- Focused on understanding group contributions to rate differences.
-
-Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
-
-- Focused on how much of wage gap was 'explained' by differences in observable characteristics
-:::
-:::::
-
-## Brief note on interpretation
-
-::::: columns
-::: {.column width="25%"}
-:::
-
-::: {.column width="75%"}
-<br>
-
-Decomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.
-
-<br>
-
-If regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.
-
-<br>
-
-If data allow identification of causal effects, then the factors that generate the inequality are identified.
-
-<br>
-
-Then one can (potentially) draw conclusions about how policies would impact on inequality.
-:::
-:::::
+> changes in the distribution of social class across the population are an important contributor to recent reductions in mortality
 
 ::: footnote
-@odonnell2008
+@heller2002
 :::
 
 ## 
@@ -437,54 +423,201 @@ knitr::include_graphics(here("images",
 
 Rate differences define inequalities
 
-Rates are complex
+Rates are complex, reflect both composition and incidence
 
 how much of it is because the groups differ in composition versus because the same factor matters differently for each group?
 
-## You will recall...
+##
 
-With data on outcomes $y_{i}$ and populations $n_{i}$ for *i* groups:
+::::: {.columns}
+::: {.column width = "50%"}
 
-Crude rate
+Group rate: $R_{i} = y_{i}/n_{i}$  
 
-$$\sum_{i=1}^{I} \frac{y_{i}}{n_{i}}$$
+Group share: $P_{i} = n_{i}/\sum_{i} n_{i}$
 
-## Link between standardization and decomposition
+<br>
+
+Crude rate: $\frac{\sum_{i=1}^{I} y_{i}}{\sum_{i=1}^{I} n_{i}} = \sum_{i=1}^{I} P_{i}R_{i}$
+
+<br>
+
+Standardized rate:  $\frac{\sum_{i=1}^{I} y_{i}}{\sum_{i=1}^{I} s_{i}} = \sum_{i=1}^{I} S_{i}R_{i}$
+
+<br>
+
+where $S_{i}$ is the share of group *i* in a *standard* population ($\sum_{i} S_{i} = 1$)
+
+:::
+
+::: {.column width = "50%"}
+| Stratum | Pop | Count | Rate |
+|---------|:-----|------:|:------:|
+| $1$      | $n_{i}$   |  $y_{i}$ | $r_{i}$   |
+| $\vdots$  |  $\vdots$  |   $\vdots$ |   $\vdots$  |
+| $I$ | $N$ | $Y$ | $R$    |
+:::
+
+:::::
+
+## 
 
 ```{r}
 kita_toy <- data.frame(
-  Age   = c("Young", "Old", "Crude", "Standardized"),
+  Age   = c("Young", "Old", "Crude", "Standardized to A"),
   Share = c("30%", "70%", " ", " "),
-  Rate  = c(10, 20, 17, 16),
+  Rate  = c(10, 40, 31, 31),
   Share = c("50%", "50%", " ", " "),
-  Rate  = c(20, 30, 25, 26),
+  Rate  = c(20, 30, 25, 27),
   check.names = FALSE
 )
 names(kita_toy) <- c("Age", "Share", "Rate", "Share", "Rate")
 
-tt(kita_toy, width = 0.75) |>
+tt(kita_toy) |>
   group_tt(j = list("Group A" = 2:3, "Group B" = 4:5)) |>
   style_tt(j = 1, align = "l") |>
   style_tt(j = 2:5, align = "c") |>
-  style_tt(i = 3, line = "t", line_color = "#888888", line_width = 0.4) |>
+  style_tt(i = 3, line = "t", 
+    line_color = "#888888", line_width = 0.4) |>
   style_tt(i = 3:4, bold = TRUE)
 ```
+
+<br>
+
+### Standardization question:  
+
+What would the $A-B$ difference be *if $B$ had $A$'s age distribution*?
+
+## Kitagawa's key insight
+
+::::: {.columns}
+::: {.column width = "50%"}
+
+```{r, out.width = "50%"}
+knitr::include_graphics(here("images",
+  "kitagawa-profile.jpg"))
+```
+:::
+
+::: {.column width = "50%"}
+
+> ...if the difference between two standardized rates is subtracted from the corresponding difference in crude rates...the result is a weighted average of differences between the composition of the two groups.
+
+:::
+
+:::::
+
+::: {.fragment}
+But what are the weights?
+:::
+
+##
+
+Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$
+
+→ Reflects differences in both rates *and* composition
+
+<br>
+
+Standardized difference (A as standard) = 
+$\sum P_{Ai}R_{Ai} - \sum P_{Ai}R_{Bi}$
+
+→ Reflects *only* differences in rates ($P_{Ai}$ is constant)
+
+<br>
+
+Crude - Standardized: $\sum R_{Bi}(P_{Ai}-P_{Bi})$
+
+→ Differences in composition, *weighted* by $B$s rates!
+
+## Need, task, and the main message {.vcenter}
+
+::: {.roomy}
+::: {.msg-list}
+::: {.msg-item}
+**Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$**\
+The gap between the actual and desired situation — why this talk exists.
+:::
+
+::: {.msg-item}
+**Task**\
+What you did (or will argue) to address that gap.
+:::
+
+::: {.msg-item}
+**Message**\
+The one sentence you want remembered if nothing else is.
+:::
+:::
+:::
+
+##
+
+::: {.roomy}
+::: {.msg-list}
+::: {.msg-item}
+Crude difference =  $\sum P_{Ai}R_{Ai} - \sum P_{Bi}R_{Bi}$\
+Reflects differences in both rates *and* composition
+:::
+
+::: {.msg-item}
+Standardized difference (A as standard) = 
+$\sum P_{Ai}R_{Ai} - \sum P_{Ai}R_{Bi}$\
+Reflects *only* differences in rates ($P_{Ai}$ is constant)
+:::
+
+::: {.msg-item}
+Crude - Standardized: $\sum R_{Bi}(P_{Ai}-P_{Bi})$\
+Differences in composition, *weighted* by $B$s rates!
+:::
+
+:::
+:::
 
 ## Applying the decomposition
 
 $$\begin{aligned}
-\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} &= \overbrace{\sum_i \left(\frac{R_{ai}+R_{bi}}{2}\right)(P_{bi}-P_{ai})}^{\text{composition effect}} \\
-&+ \underbrace{\sum_i \left(\frac{P_{ai}+P_{bi}}{2}\right)(R_{bi}-R_{ai})}_{\text{rate effect}}
+\underbrace{\text{Rate}_A - \text{Rate}_B}_{\text{crude difference}} &= \overbrace{\sum_i \left(\frac{R_{Ai}+R_{Bi}}{2}\right)(P_{Ai}-P_{Bi})}^{\text{composition effect}} \\
+&+ \underbrace{\sum_i \left(\frac{P_{Ai}+P_{Bi}}{2}\right)(R_{Ai}-R_{Bi})}_{\text{rate effect}}
 \end{aligned}$$
 
-$R_{ai}$ is the rate for group *a* in stratum *i*.\
-$P_{ai}$ is the *i*-stratum-specific weight in group *a*.
+$R_{Ai}$ is the rate for group *A* in stratum *i*.\
+$P_{Ai}$ is the *i*-stratum-specific weight in group *A*.
 
 ## 
 
-::: {style="font-size:0.6em;"}
-$$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbrace{\sum_i \left(\frac{R_{ai}+R_{bi}}{2}\right)(P_{bi}-P_{ai})}^{\text{composition effect}} + \underbrace{\sum_i \left(\frac{P_{ai}+P_{bi}}{2}\right)(R_{bi}-R_{ai})}_{\text{rate effect}}$$
-:::
+<table style="width:60%; margin:0 auto; border-collapse:collapse; font-size:0.6em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="2" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Group A</th>
+<th colspan="2" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Group B</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Age</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Share</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Rate</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Share</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">30%</td>
+<td style="text-align:center; border:none;">10</td>
+<td style="text-align:center; border:none;">50%</td>
+<td style="text-align:center; border:none;">20</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">70%</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">40</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">50%</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">30</td>
+</tr>
+</tbody>
+</table>
 
 <br>
 
@@ -498,8 +631,8 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 </tr>
 <tr>
 <th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{R_{ai}+R_{bi}}{2}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{bi}-P_{ai}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{R_{Ai}+R_{Bi}}{2}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
 <th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
 </tr>
 </thead>
@@ -507,20 +640,20 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 <tr class="fragment" data-fragment-index="0">
 <td style="padding:4px 8px; border:none;">Young</td>
 <td style="text-align:center; border:none;">15</td>
-<td style="text-align:center; border:none;">+0.20</td>
-<td style="text-align:center; border:none;">+3.0</td>
+<td style="text-align:center; border:none;">−0.20</td>
+<td style="text-align:center; border:none;">−3.0</td>
 </tr>
 <tr class="fragment" data-fragment-index="1">
 <td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">25</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">−0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">−5.0</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">35</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+7.0</td>
 </tr>
 <tr class="fragment" data-fragment-index="2" style="font-weight:bold;">
 <td style="padding:4px 8px; border:none;">Sum</td>
 <td style="border:none;"></td>
 <td style="border:none;"></td>
-<td style="text-align:center; border:none;">−2.0</td>
+<td style="text-align:center; border:none;">+4.0</td>
 </tr>
 </tbody>
 </table>
@@ -535,8 +668,8 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 </tr>
 <tr>
 <th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{P_{ai}+P_{bi}}{2}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{bi}-R_{ai}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$\frac{P_{Ai}+P_{Bi}}{2}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
 <th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contribution</th>
 </tr>
 </thead>
@@ -544,8 +677,8 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 <tr class="fragment" data-fragment-index="0">
 <td style="padding:4px 8px; border:none;">Young</td>
 <td style="text-align:center; border:none;">0.40</td>
-<td style="text-align:center; border:none;">+10</td>
-<td style="text-align:center; border:none;">+4.0</td>
+<td style="text-align:center; border:none;">−10</td>
+<td style="text-align:center; border:none;">−4.0</td>
 </tr>
 <tr class="fragment" data-fragment-index="1">
 <td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
@@ -557,7 +690,7 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 <td style="padding:4px 8px; border:none;">Sum</td>
 <td style="border:none;"></td>
 <td style="border:none;"></td>
-<td style="text-align:center; border:none;">+10.0</td>
+<td style="text-align:center; border:none;">+2.0</td>
 </tr>
 </tbody>
 </table>
@@ -566,20 +699,192 @@ $$\underbrace{\text{Rate}_b - \text{Rate}_a}_{\text{crude difference}} = \overbr
 
 ::: {.fragment data-fragment-index="2"}
 <br>
-Total = −2.0 + 10.0 = **8.0** = crude gap (25 − 17)  
+Total = **+6.0** = crude gap (31 − 25) [→67% due to composition]{.blue} 
 
-Rate effect (+10) = standardized gap (26 − 16)
+Rate effect (+2) = standardized gap (28 − 26)
 :::
 
-## 
+## Kitagawa: does the reference group matter?
+
+```{r}
+toy <- tibble::tibble(
+  stratum = c("Young", "Old"),
+  P_a = c(0.3, 0.7), R_a = c(10, 40),
+  P_b = c(0.5, 0.5), R_b = c(20, 30)
+)
+dP <- toy$P_a - toy$P_b
+dR <- toy$R_a - toy$R_b
+crude_a <- sum(toy$P_a * toy$R_a)
+crude_b <- sum(toy$P_b * toy$R_b)
+inter   <- sum(dP * dR)
+
+toy_ref <- data.frame(
+  Reference   = c("A's rates", "B's rates", "Average (Kitagawa)"),
+  Composition = c(sum(dP * toy$R_a), sum(dP * toy$R_b),
+                  sum(dP * (toy$R_a + toy$R_b) / 2)),
+  Rate        = c(sum(toy$P_b * dR), sum(toy$P_a * dR),
+                  sum((toy$P_a + toy$P_b) / 2 * dR))
+)
+toy_ref$Total <- toy_ref$Composition + toy_ref$Rate
+toy_ref[2:4] <- lapply(toy_ref[2:4], \(x) sprintf("%.1f", x))
+
+tt(toy_ref, width = 0.75) |>
+  style_tt(j = 1, align = "l") |>
+  style_tt(j = 2:4, align = "c") |>
+  style_tt(i = 3, bold = TRUE)
+```
+
+Crude gap = `r crude_a` − `r crude_b` = **`r crude_a - crude_b`** in every row; only the split changes
+
+The one-sided rows differ by the interaction, $\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})$ = `r sprintf("%.1f", inter)`, which the average splits evenly
+
+::: footnote
+Same toy example as the previous slides. The rate difference changes sign between strata (B higher when young, lower when old), so the one-sided answers diverge sharply: A's rates as reference attribute the whole gap to composition (rate effect 0); B's rates give rate +4.
+:::
+
+## Kitagawa's three-component version
+
+::: {style="font-size:0.5em;"}
+$$\underbrace{\text{Rate}_A - \text{Rate}_B}_{\text{crude difference}} = \overbrace{\sum_i R_{Bi}(P_{Ai}-P_{Bi})}^{\text{composition}} + \overbrace{\sum_i P_{Bi}(R_{Ai}-R_{Bi})}^{\text{rate}} + \overbrace{\sum_i (R_{Ai}-R_{Bi})(P_{Ai}-P_{Bi})}^{\text{interaction}}$$
+:::
+
+::::: {.columns}
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="0"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">20</td>
+<td style="text-align:center; border:none;">−0.20</td>
+<td style="text-align:center; border:none;">−4.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">30</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">+2.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="1"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">0.50</td>
+<td style="text-align:center; border:none;">−10</td>
+<td style="text-align:center; border:none;">−5.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.50</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+5.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">0.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+
+::: {.column width="32%"}
+::: {.fragment data-fragment-index="2"}
+<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
+<thead>
+<tr>
+<th style="padding:4px 8px; border:none;"></th>
+<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Interaction</th>
+</tr>
+<tr>
+<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
+<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:4px 8px; border:none;">Young</td>
+<td style="text-align:center; border:none;">−10</td>
+<td style="text-align:center; border:none;">−0.20</td>
+<td style="text-align:center; border:none;">+2.0</td>
+</tr>
+<tr>
+<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
+<td style="text-align:center; border:none; border-bottom:1px solid #888;">+2.0</td>
+</tr>
+<tr style="font-weight:bold;">
+<td style="padding:4px 8px; border:none;">Sum</td>
+<td style="border:none;"></td>
+<td style="border:none;"></td>
+<td style="text-align:center; border:none;">+4.0</td>
+</tr>
+</tbody>
+</table>
+:::
+:::
+:::::
+
+::: {.fragment data-fragment-index="3"}
+<br>
+Total = +2.0 + 0.0 + 4.0 = **+6.0** = crude gap (31 − 25)
+:::
+
+::: {.fragment data-fragment-index="4"}
+Add the interaction to composition: +6.0 and 0.0 (A's rates). Add it to rate: +2.0 and +4.0 (B's rates).
+:::
+
+##
 
 ::::: {.columns .valign-center}
 ::: {.column width="50%"}
 ### What contributes to a difference?
 
-1.  Group differences in rates <br>
+1.  Group differences in stratum-specific rates <br>
 
-2.  Differences in group size
+2.  Group differences in composition of strata
 
 <br>
 
@@ -627,7 +932,7 @@ knitr::include_graphics(here("images",
 
 ## Hiding in plain sight?
 
-Both DK and AT \~0.3 deaths per 1000 higher than "Top 3"
+Both DK and AT similar and \~0.3 deaths per 1000 higher than "Top 3"
 
 ::: {.fragment data-fragment-index="0"}
 But *completely different* contributions to the difference
@@ -809,38 +1114,50 @@ dist_main_plot +
 @sartorius2024
 :::
 
-## Overview of Decomposition Techniques
+{{< include _plan.qmd >}}
+
+# 2. Oaxaca–Blinder Decomposition {#oaxaca}
+
+## Idea for Decomposition of Means
 
 :::::: columns
 ::: {.column width="45%"}
 <br>
 
-### Today:
+The core idea is to explain the distribution of the outcome variable in question by a set of factors that vary systematically with exposure status.
 
-- Inequality decomposition: Concentration Index
-- Decomposing two-group differences: Kitagawa-Blinder-Oaxaca
+Thus, we want to know, on average, **why the mean level of health or disease differs between exposed and unexposed groups**.
 :::
 
 ::: {.column width="5%"}
 :::
 
-::: {.column width="50%"}
+::: {.column width="45%"}
 <br>
 
-### Not covered here:
+Since, for most health outcomes there are multiple determinants, we may want to know which of these determinants plays more or less important roles in explaining the difference in average outcomes.
 
-- Life table decomposition
-- Effect decomposition (i.e., mediation)
-- Decomposition of population rates
-- Inequality decomposition for nominal social groups
+"Unpacking" or "decomposing" difference.
 :::
 ::::::
 
-{{< include _plan.qmd >}}
+## Origins
 
-# 2. Oaxaca–Blinder Decomposition {#oaxaca}
+::::: columns
+::: {.column width="25%"}
+```{r}
+knitr::include_graphics(here("images", "kitagawa-title.png"))
+```
+:::
 
-## Kitagawa-Blinder-Oaxaca: Basic Idea
+::: {.column width="75%"}
+Studies by @oaxaca1973 and @blinder1973 applied regression-based decomposition methods to analyze the wage gap between men and women and between whites and blacks in the USA.
+
+- Focused on how much of wage gap was 'explained' by differences in observable characteristics
+:::
+:::::
+
+## Brief note on interpretation
 
 ::::: columns
 ::: {.column width="25%"}
@@ -849,7 +1166,29 @@ dist_main_plot +
 ::: {.column width="75%"}
 <br>
 
-### [Sources of mean differences in outcomes]{.black}
+Decomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.
+
+<br>
+
+If regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.
+
+:::
+:::::
+
+::: footnote
+@odonnell2008
+:::
+
+## Oaxaca-Blinder: Basic Idea
+
+### [What explains average differences in outcomes?]{.black}
+
+::::: columns
+::: {.column width="25%"}
+:::
+
+::: {.column width="75%"}
+<br>
 
 ### 1. Means
 
@@ -863,9 +1202,28 @@ dist_main_plot +
 :::
 :::::
 
-## Regression reproduces the mean
+## If this sounds familiar...
 
-```{r, fig.width=14, fig.height=5}
+O-B decomp is a generalization of Kitagawa
+
+<br>
+
+Equivalent for binary outcome and categorical covariates
+
+## 
+
+::::: columns
+::: {.column width="25%"}
+### Why does this work?
+
+<br>
+
+OLS regression line always passes through $(\bar{x}, \bar{y})$ because residuals sum to zero.
+:::
+
+::: {.column width="75%"}
+
+```{r, fig.width=8, fig.height=6}
 set.seed(42)
 n <- 120
 
@@ -899,7 +1257,7 @@ grp_colors <- c("Unexposed" = "#4393c3", "Exposed" = "#d6604d")
 df1 <- filter(df_sim, group == "Unexposed")
 m1  <- filter(means,  group == "Unexposed")
 
-pA <- ggplot(df1, aes(x, y)) +
+ggplot(df1, aes(x, y)) +
   geom_point(alpha = 0.3, size = 2, colour = "#4393c3") +
   geom_smooth(method = "lm", se = FALSE,
               colour = "#4393c3", linewidth = 1.2) +
@@ -921,80 +1279,24 @@ pA <- ggplot(df1, aes(x, y)) +
            label = "bar(y)==hat(alpha)+hat(beta)*bar(x)",
            parse = TRUE, colour = "#d6604d", size = 4.5,
            label.size = 0.3, fill = "white") +
-  labs(title = "OLS line passes through (x̄, ȳ)",
-       x = "x", y = "y") +
+  labs(x = "x", y = "y") +
   theme_minimal(base_size = 14) +
   theme(plot.title = element_text(face = "bold"),
         panel.grid.minor = element_blank())
-
-# Panel B: two groups — endowments vs coefficients
-pred_line <- bind_rows(
-  tibble(group = "Unexposed",
-         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
-    mutate(y = filter(fits, group == "Unexposed")$alpha +
-               filter(fits, group == "Unexposed")$beta * x),
-  tibble(group = "Exposed",
-         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
-    mutate(y = filter(fits, group == "Exposed")$alpha +
-               filter(fits, group == "Exposed")$beta * x)
-)
-
-# Counterfactual: unexposed coefficients evaluated at exposed x̄
-m_exp <- filter(means, group == "Exposed")
-m_unexp <- filter(means, group == "Unexposed")
-y_cf <- m_unexp$alpha + m_unexp$beta * m_exp$xbar   # unexposed betas, exposed means
-
-pB <- ggplot(df_sim, aes(x, y, colour = group)) +
-  geom_point(alpha = 0.2, size = 2) +
-  geom_line(data = pred_line, aes(x, y, colour = group), linewidth = 1.2) +
-  # vertical lines at each group's x̄
-  geom_vline(xintercept = m_unexp$xbar, linetype = "dashed",
-             colour = grp_colors["Unexposed"], linewidth = 0.7) +
-  geom_vline(xintercept = m_exp$xbar,   linetype = "dashed",
-             colour = grp_colors["Exposed"],   linewidth = 0.7) +
-  # actual group means on their own lines
-  geom_point(data = means, aes(x = xbar, y = ybar, colour = group),
-             size = 5, show.legend = FALSE) +
-  # counterfactual point
-  geom_point(aes(x = m_exp$xbar, y = y_cf),
-             colour = "grey30", size = 4, shape = 17) +
-  # arrows showing decomposition
-  annotate("segment",
-           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
-           y = y_cf, yend = m_exp$ybar,
-           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
-           colour = "#9e3a14", linewidth = 0.8) +
-  annotate("segment",
-           x = m_exp$xbar + 0.05, xend = m_exp$xbar + 0.05,
-           y = m_unexp$ybar, yend = y_cf,
-           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
-           colour = "#1a5276", linewidth = 0.8) +
-  annotate("label", x = m_exp$xbar + 0.25, y = (y_cf + m_exp$ybar) / 2,
-           label = "Coefficients", colour = "#9e3a14",
-           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
-  annotate("label", x = m_exp$xbar + 0.25, y = (m_unexp$ybar + y_cf) / 2,
-           label = "Endowments", colour = "#1a5276",
-           size = 4, label.size = 0.3, fill = "white", hjust = 0) +
-  scale_colour_manual(values = grp_colors) +
-  labs(title = "Gap = endowments + coefficients",
-       x = "x", y = "y", colour = NULL) +
-  theme_minimal(base_size = 14) +
-  theme(plot.title  = element_text(face = "bold"),
-        panel.grid.minor = element_blank(),
-        legend.position = "top")
-
-pA + pB
 ```
-
-::: footnote
-Left: OLS regression line always passes through $(\bar{x}, \bar{y})$ because residuals sum to zero. Right: the gap in group means decomposes into **endowments** (different $\bar{x}$, same coefficients — grey triangle to blue dot) and **coefficients** (same $\bar{x}$, different slopes/intercepts — grey triangle to red dot).
 :::
+:::::
 
 ## 
 
 ::::: columns
 ::: {.column width="25%"}
-Some text
+### Why does this work?
+
+<br>
+
+The gap decomposes into **endowments** (different $\bar{x}$, same coefficients) and **coefficients** (same $\bar{x}$, different slopes/intercepts).
+
 :::
 
 ::: {.column width="75%"}
@@ -1091,77 +1393,113 @@ ggplot(df_sim, aes(x, y, colour = group)) +
 :::
 :::::
 
-## 
-
-### Two ways of expressing the mean difference in $y$
+##
 
 ::::: columns
 ::: {.column width="25%"}
+Equally valid to use the **exposed** group's slope
+
+<br>
+
+Same total gap, but different split
 :::
 
 ::: {.column width="75%"}
-The overall gap between exposed and unexposed can be written as a function of differences the respective beta coefficients, evaluated at the mean for each group:
+```{r, fig.width=8, fig.height=6}
+set.seed(42)
+n <- 120
 
-```{r}
-knitr::include_graphics(here("images", "kbo-two-ways.png"))
+# Two groups with different x means AND different slopes
+x1 <- rnorm(n, mean = 3.5, sd = 1)
+y1 <- 1.0 + 0.5 * x1 + rnorm(n, sd = 0.8)
+
+x2 <- rnorm(n, mean = 5.5, sd = 1)
+y2 <- 0.5 + 0.9 * x2 + rnorm(n, sd = 0.8)
+
+df_sim <- bind_rows(
+  tibble(x = x1, y = y1, group = "Unexposed"),
+  tibble(x = x2, y = y2, group = "Exposed")
+)
+
+fits <- df_sim |>
+  group_by(group) |>
+  group_modify(~ broom::tidy(lm(y ~ x, data = .x))) |>
+  select(group, term, estimate) |>
+  pivot_wider(names_from = term, values_from = estimate) |>
+  rename(alpha = `(Intercept)`, beta = x)
+
+means <- df_sim |>
+  group_by(group) |>
+  summarise(xbar = mean(x), ybar = mean(y), .groups = "drop") |>
+  left_join(fits, by = "group")
+
+grp_colors <- c("Unexposed" = "#4393c3", "Exposed" = "#d6604d")
+
+# Panel B: two groups — endowments vs coefficients
+pred_line <- bind_rows(
+  tibble(group = "Unexposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Unexposed")$alpha +
+               filter(fits, group == "Unexposed")$beta * x),
+  tibble(group = "Exposed",
+         x = seq(min(x1) - 0.5, max(x2) + 0.5, length.out = 100)) |>
+    mutate(y = filter(fits, group == "Exposed")$alpha +
+               filter(fits, group == "Exposed")$beta * x)
+)
+
+# Counterfactual (flipped from the previous slide): exposed coefficients
+# evaluated at unexposed x̄, instead of unexposed coefficients evaluated
+# at exposed x̄. The reference group's *slope* — not the group whose
+# outcome is being explained — is what determines the split.
+m_exp <- filter(means, group == "Exposed")
+m_unexp <- filter(means, group == "Unexposed")
+y_cf <- m_exp$alpha + m_exp$beta * m_unexp$xbar   # exposed betas, unexposed means
+
+ggplot(df_sim, aes(x, y, colour = group)) +
+  geom_point(alpha = 0.2, size = 2) +
+  geom_line(data = pred_line, aes(x, y, colour = group), linewidth = 1.2) +
+  # vertical lines at each group's x̄
+  geom_vline(xintercept = m_unexp$xbar, linetype = "dashed",
+             colour = grp_colors["Unexposed"], linewidth = 0.7) +
+  geom_vline(xintercept = m_exp$xbar,   linetype = "dashed",
+             colour = grp_colors["Exposed"],   linewidth = 0.7) +
+  # actual group means on their own lines
+  geom_point(data = means, aes(x = xbar, y = ybar, colour = group),
+             size = 5, show.legend = FALSE) +
+  # counterfactual point — now sits on the EXPOSED line, at unexposed x̄
+  geom_point(aes(x = m_unexp$xbar, y = y_cf),
+             colour = "grey30", size = 4, shape = 17) +
+  # arrows showing decomposition, anchored near the unexposed mean this time
+  annotate("segment",
+           x = m_unexp$xbar - 0.05, xend = m_unexp$xbar - 0.05,
+           y = m_unexp$ybar, yend = y_cf,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#9e3a14", linewidth = 0.8) +
+  annotate("segment",
+           x = m_unexp$xbar - 0.05, xend = m_unexp$xbar - 0.05,
+           y = y_cf, yend = m_exp$ybar,
+           arrow = arrow(length = unit(0.2, "cm"), ends = "both"),
+           colour = "#1a5276", linewidth = 0.8) +
+  annotate("label", x = m_unexp$xbar - 0.25, y = (m_unexp$ybar + y_cf) / 2,
+           label = "Coefficients", colour = "#9e3a14",
+           size = 4, label.size = 0.3, fill = "white", hjust = 1) +
+  annotate("label", x = m_unexp$xbar - 0.25, y = (y_cf + m_exp$ybar) / 2,
+           label = "Endowments", colour = "#1a5276",
+           size = 4, label.size = 0.3, fill = "white", hjust = 1) +
+  scale_colour_manual(values = grp_colors) +
+  labs(title = "Same gap, alternative split (exposed slope as reference)",
+       x = "x", y = "y", colour = NULL) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title  = element_text(face = "bold"),
+        panel.grid.minor = element_blank(),
+        legend.position = "top")
 ```
 :::
 :::::
 
-------------------------------------------------------------------------
-
-::::: columns
-::: {.column width="25%"}
-### First method
-
-- Coefficients of unexposed
-
-- Means of exposed
-:::
-
-::: {.column width="75%"}
-$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{unexp}-\Delta\beta x^{exp}$
-
-```{r}
-knitr::include_graphics(here("images", "kbo-first-method.png"))
-```
-:::
-:::::
-
-------------------------------------------------------------------------
-
-::::: columns
-::: {.column width="25%"}
-### Second method
-
-- Coefficients of exposed
-
-- Means of unexposed
-:::
-
-::: {.column width="75%"}
-$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{exp}-\Delta\beta x^{unexp}$
-
-```{r}
-knitr::include_graphics(here("images", "kbo-second-method.png"))
-```
-:::
-:::::
-
-## The two methods are equally valid
-
-::::: columns
-::: {.column width="25%"}
-:::
-
-::: {.column width="75%"}
-In the first, the differences in the $X$s are weighted by the [coefficients of the unexposed group]{.red} and the differences in the coefficients are weighted by the $X$s of the exposed group: $$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{unexp}-\Delta\beta x^{exp}$$
-
-whereas, in the second, the differences in the $X$s are weighted by the [coefficients of the exposed group]{.blue} and the differences in the coefficients are weighted by the $X$s of the unexposed group: $$y^{exp} - y^{unexp} = \Delta\bar{x}\beta^{exp}-\Delta\beta x^{unexp}$$
-
+::: footnote
 See @oaxaca1973, @blinder1973 and @cotton1988a for details.
 :::
-:::::
 
 ## Example: Educational Differences in BMI in Italy
 
@@ -1173,9 +1511,6 @@ See @oaxaca1973, @blinder1973 and @cotton1988a for details.
 :::
 
 ::: {.column width="75%"}
-### Basic question
-
-<br>
 
 What is the average difference in body mass index (BMI) between those with low vs. high education?
 
@@ -1206,19 +1541,23 @@ Potential determinants (the Xs):
 - married (1 = currently married)
 - income decile (1–10)
 
-## BMI distribution by education (High ed: 23.6, Low ed: 25.2, Gap = 1.6)
+## High ed BMI: 23.6, Low ed BMI: 25.2, Gap = 1.6
 
 ```{r out.width="75%"}
 knitr::include_graphics(here("figs", "ess11_IT_bmi_low_ed_density.png"))
 ```
 
+::: footnote
+Source: Author's calculations
+:::
+
 ## Differences in determinants
 
 ::::: columns
 ::: {.column width="20%"}
-- Low-educated Italians differ from high-educated on several covariates
 
-- These differences could explain part of the BMI gap
+Differences in age, smoking, etc. could explain part of the BMI gap
+
 :::
 
 ::: {.column width="80%"}
@@ -1227,6 +1566,10 @@ knitr::include_graphics(here("figs", "ess11_IT_bmi_low_ed_means.png"))
 ```
 :::
 :::::
+
+::: footnote
+Source: Author's calculations
+:::
 
 ## Differences in coefficients
 
@@ -1277,13 +1620,14 @@ tt_decomp(show_cols = 2, hi_section = "coef")
 
 Coefficients component is larger than endowments — most of the BMI gap reflects differences in *associations*, not just composition
 
-## Decomposition results: pooled {visibility="hidden"}
+## Decomposition results: pooled {visibility="hidden"} 
 
 ```{r}
 tt_decomp(show_cols = 3, hi_section = NULL)
 ```
 
 Pooled (Cotton) betas give a symmetric reference — no interaction term; the three columns bracket the range of plausible decompositions
+
 
 ## Decomposition results: variable contributions
 
@@ -1315,7 +1659,7 @@ disp$Label[disp$Label %in% c("Endowments", "Coefficients")] <- "Total"
 bold_rows <- which(c_rows$bold)
 
 tt(disp, width = 0.9) |>
-  style_tt(fontsize = 0.9) |>
+  style_tt(fontsize = 0.7) |>
   format_tt(j = 2:5, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
   group_tt(j = list(" " = 1, "Endowments" = 2:3, "Coefficients" = 4:5)) |>
   setNames(c("", "Est", "SE", "Est", "SE")) |>
@@ -1326,9 +1670,7 @@ tt(disp, width = 0.9) |>
 
 `r GROUP_2` betas used as reference; rows show each variable's contribution to the overall gap of `r round(gap, 2)` kg/m²
 
-## Decomposition results: summary
-
-Endowments: 38%; Coefficients: 62%
+## Summary: [Endowments = 38%]{.red}, Coefficients = 62%
 
 :::::: columns
 ::: {.column width="45%"}
@@ -1346,7 +1688,9 @@ disp$Label[disp$Label == "Endowments"] <- "Total"
 bold_rows <- which(e_rows$bold)
 
 tt(disp, width = 1) |>
-  format_tt(j = 2:3, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
+  style_tt(fontsize = 0.8) |>
+  format_tt(j = 2:3, 
+    fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
   group_tt(j = list(" " = 1, "Endowments" = 2:3)) |>
   setNames(c("", "Est", "SE")) |>
   style_tt(j = 1,   align = "l") |>
@@ -1368,15 +1712,13 @@ Interpretation:
 :::
 ::::::
 
-## Decomposition results: coefficients
-
-Endowments: 38%; Coefficients: 62%
+## Summary: Endowments = 38%, [Coefficients = 62%]{.red}
 
 :::::: columns
 ::: {.column width="45%"}
 Interpretation:
 
-- If the high-educated group's covariates had the same relationship with BMI as they do in the low-educated group (i.e., if low-ed coefficients applied to high-ed covariate means), their BMI would be 1.030 higher, accounting for 62% of the gap.
+- If the high-educated group's covariates had the same relationship with BMI as they do in the low-educated group, their BMI would be 1.030 higher, accounting for 62% of the gap.
 
 - Note smoking is negative, since smoking predicts higher BMI among the high-educated and is more common among high educated.
 :::
@@ -1402,6 +1744,7 @@ tt(disp, width = 1) |>
   format_tt(j = 2:3, fn = \(x) ifelse(is.na(x), "—", sprintf("%.3f", x))) |>
   group_tt(j = list(" " = 1, "Coefficients" = 2:3)) |>
   setNames(c("", "Est", "SE")) |>
+  style_tt(fontsize = 0.8) |>
   style_tt(j = 1,   align = "l") |>
   style_tt(j = 2:3, align = "r") |>
   style_tt(i = bold_rows, bold = TRUE) |>
@@ -1425,6 +1768,46 @@ plot_endow_detail()
 ```
 :::
 :::::
+
+## Decomposition results: does the reference group matter?
+
+```{r}
+#| fig-height: 5
+ref_lab <- c(paste(GROUP_2, "betas"), paste(GROUP_1, "betas"), "Pooled betas")
+
+ref_sum <- decomp_tbl |>
+  dplyr::filter(section %in% c("endow_tot", "coef_tot", "inter")) |>
+  dplyr::select(label, g2_est, g1_est, gp_est) |>
+  tidyr::pivot_longer(-label, names_to = "ref", values_to = "value") |>
+  dplyr::mutate(
+    component = factor(label, levels = c("Endowments", "Coefficients", "Interaction")),
+    ref       = factor(recode(ref, g2_est = ref_lab[1], g1_est = ref_lab[2],
+                              gp_est = ref_lab[3]), levels = ref_lab),
+    bar_label = if_else(is.na(value), "none", sprintf("%.2f", value)),
+    value     = replace_na(value, 0)
+  )
+
+endow_share <- with(decomp_tbl[decomp_tbl$section == "endow_tot", ],
+                    c(g2_est, g1_est, gp_est)) / gap
+
+ggplot(ref_sum, aes(x = component, y = value, fill = ref)) +
+  geom_col(position = position_dodge(width = 0.75), width = 0.65) +
+  geom_hline(yintercept = 0, colour = "grey30", linewidth = 0.5) +
+  geom_text(aes(label = bar_label,
+                vjust = if_else(value >= 0, -0.4, 1.3)),
+            position = position_dodge(width = 0.75), size = 5) +
+  scale_fill_manual(values = setNames(c(GROUP_COLORS[2], GROUP_COLORS[1], "grey55"),
+                                      ref_lab)) +
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.15))) +
+  labs(x = NULL, y = paste0("Contribution to gap (", OUTCOME_LABEL, ")"),
+       fill = "Reference:") +
+  theme_minimal(base_size = 16) +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "top")
+```
+
+Endowments account for **`r round(100 * min(endow_share))`–`r round(100 * max(endow_share))`%** of it; interaction is negligible
 
 ## **Break!** `r emo::ji("coffee")`
 
@@ -1585,9 +1968,8 @@ The other part $(gRCI_{e}/\mu)$ is 'unexplained', i.e., inequality that cannot b
 
 ::::: columns
 ::: {.column width="50%"}
-<br> <br>
 
-```{r}
+```{r, fig.width = 6}
 dag_plot(dag,
          node_col = "black",
          edge_col = c("Education->Health" = "red",
@@ -1616,7 +1998,7 @@ Determinant impact depends on:
 ::: {.column width="75%"}
 1.  Regress $y$ ('health') on its determinants $(\beta_{k}x_{k})$:
 
-$$\color{red}{y_{i}}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
+$$y_{i}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 
 2.  Calculate means of $y$ $(\mu)$ and all $x_{k}$ determinants
 
@@ -2074,7 +2456,84 @@ See @jackson2018; @jackson2021; @lundberg2024; @yu2025; @jackson2025; @opacic202
 
 ## Different from causal mediation
 
-## Brief example
+## Youth accident deaths: what would we intervene on? {.smaller}
+
+::::: columns
+::: {.column width="62%"}
+- Danish-origin 15--24-year-olds die in accidents more often than immigrant-origin peers (IRR 0.59 first-generation, 0.93 second-generation)
+
+- Alcohol is a plausible pathway: 16% of fatal accidents; Danish origin has 4.0 times the odds of an alcohol-related death
+
+- Drinking itself was not measured --- abstention is assumed
+
+- Complication: immigrant-origin families are poorer, so adjusting for income *widens* the gap (0.59 → 0.39)
+
+- **What if** Danish-origin youth drank like their immigrant-origin peers?
+:::
+
+::: {.column width="38%"}
+```{r}
+knitr::include_graphics(here("images",
+  "kruckow-2024-title.png"))
+```
+
+```{r}
+knitr::include_graphics(here("images",
+  "udesen-2023-title.png"))
+```
+:::
+:::::
+
+::: footnote
+@udesen2023; @kruckow2024 (ethnic IRRs inverted from Kruckow supplementary table 2)
+:::
+
+##
+
+```{r}
+dag2 <- dagitty("dag {
+  E -> C
+  C -> A
+  A -> D
+  E -> A
+  E -> D
+  C -> D
+  G -> A
+  G -> D
+  S -> A
+  S -> D
+}")
+
+coordinates(dag2) <- list(
+  x = c(E = 1, C = 2.8, A = 4.6, D = 6.4, G = 5.5, S = 5.5),
+  y = c(E = 1.5, C = 1.5, A = 1.5, D = 1.5, G = 0.3, S = 2.7)
+)
+
+curve2 <- list(
+  "E->A" = c(0, 0.6),
+  "C->D" = c(0, -0.6),
+  "E->D" = c(0, -1.3)
+)
+
+dag_plot(dag2, curve = curve2, shrink = 0.2, pad = 1.3)
+text(1,   -0.85, "Ethnicity",     col = "firebrick", font = 3, cex = 1.3)
+text(2.8, -0.85, "Childhood SEP", col = "firebrick", font = 3, cex = 1.3)
+text(4.6, -0.85, "Alcohol",       col = "firebrick", font = 3, cex = 1.3)
+text(7.3, -1.5,  "Accidents",     col = "firebrick", font = 3, cex = 1.3)
+text(5.5,  0.15, "Age",           col = "firebrick", font = 3, cex = 1.3)
+text(5.5, -3.15, "Sex",           col = "firebrick", font = 3, cex = 1.3)
+```
+
+##
+
+```{r}
+knitr::include_graphics(here("images",
+  "moller-2026-title.png"))
+```
+
+::: footnote
+@møller2026
+:::
 
 ## Summary
 

@@ -8,6 +8,7 @@ format:
     slide-number: true
     html-math-method: mathjax
     auto-stretch: false
+bibliography: references.bib
 ---
 
 ```{r setup, echo=F}
@@ -27,19 +28,19 @@ Quarto enables you to weave together content and executable code into a finished
 
 ## Bullets
 
-## {auto-animate=true}
+##  {auto-animate="true"}
 
 ::: {style="margin-top: 100px;"}
 $\sum_{i} \frac{r_{i}}{n_{i}}$
 :::
 
-## {auto-animate=true}
+##  {auto-animate="true"}
 
 ::: {style="margin-top: 200px; font-size: 3em; color: red;"}
 $\sum_{i} \frac{r_{i}}{n_{i}}$
 :::
 
-##
+## 
 
 $\sum_{i} \frac{r_{i}}{n_{i}}$
 
@@ -143,25 +144,26 @@ dot_plot <- function(dat, x_limits, x_lab, show_labels = TRUE) {
 }
 ```
 
-::::: {.columns}
-::: {.column width="55%"}
-::: {.fragment}
+::::::: columns
+:::: {.column width="55%"}
+::: fragment
 ```{r fig.width=7, fig.height=5.5, out.width="100%"}
 dot_plot(dk_rate, c(0, 35), "% current (daily) smokers", show_labels = TRUE)
 ```
 :::
-:::
+::::
 
-::: {.column width="45%"}
-::: {.fragment}
+:::: {.column width="45%"}
+::: fragment
 ```{r fig.width=5.75, fig.height=5.5, out.width="100%"}
 dot_plot(dk_share, c(0, 45), "% of population", show_labels = FALSE)
 ```
 :::
-:::
-:::::
+::::
+:::::::
 
 ::: footnote
 Source: Den Nationale Sundhedsprofil 2010 (Tabel 4.1.1) and 2025 (Tabel 3.1.3), Statens Institut for Folkesundhed / Sundhedsstyrelsen.
-:::
 
+[@møller2026]
+:::
