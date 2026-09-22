@@ -95,7 +95,7 @@
     "href": "index.html#kitagawa-does-the-reference-group-matter",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Kitagawa: does the reference group matter?",
-    "text": "Kitagawa: does the reference group matter?\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n              \n                Reference\n                Composition\n                Rate\n                Total\n              \n        \n        \n        \n                \n                  A's rates\n                  6.0\n                  0.0\n                  6.0\n                \n                \n                  B's rates\n                  2.0\n                  4.0\n                  6.0\n                \n                \n                  Average (Kitagawa)\n                  4.0\n                  2.0\n                  6.0\n                \n        \n      \n    \n\n\n\nCrude gap = 31 − 25 = 6 in every row; only the split changes\nThe one-sided rows differ by the interaction, \\(\\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})\\) = 4.0, which the average splits evenly"
+    "text": "Kitagawa: does the reference group matter?\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n              \n                Reference\n                Composition\n                Rate\n                Total\n              \n        \n        \n        \n                \n                  A's rates\n                  6.0\n                  0.0\n                  6.0\n                \n                \n                  B's rates\n                  2.0\n                  4.0\n                  6.0\n                \n                \n                  Average (Kitagawa)\n                  4.0\n                  2.0\n                  6.0\n                \n        \n      \n    \n\n\n\nCrude gap = 31 − 25 = 6 in every row; only the split changes\nSingle references differ an interaction, \\(\\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})\\) = 4.0, which the average splits evenly"
   },
   {
     "objectID": "index.html#section-6",
@@ -123,7 +123,14 @@
     "href": "index.html#section-8",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
-    "text": "Austria more births at earlier GA\n\n\n\n\n\n\n\n\n\n\n\nImplications for interventions\nDK: improving care at early GA\nAT: shifting the distribution of GA later\n\n\n\nSartorius et al. (2024)"
+    "text": "Austria more births at earlier GA\n\n\n\n\n\n\n\n\n\n\nSartorius et al. (2024)"
+  },
+  {
+    "objectID": "index.html#section-9",
+    "href": "index.html#section-9",
+    "title": "Decomposition Techniques for Social Epidemiology: Why and How",
+    "section": "",
+    "text": "Implications for interventions\nDK: improving care at early GA\nAT: shifting the distribution of GA later"
   },
   {
     "objectID": "index.html#summary-kitagawas-decomposition",
@@ -147,8 +154,8 @@
     "text": "Oaxaca-Blinder: Basic Idea\nWhat explains average differences in outcomes? In a regression context:\n\n\n\n\n\n1. Means\nDifferences in the prevalence of determinants of outcome\n\n2. Coefficients\nDifferences in the coefficient of a given determinant on the outcome (i.e., effect measure modification)"
   },
   {
-    "objectID": "index.html#section-9",
-    "href": "index.html#section-9",
+    "objectID": "index.html#section-10",
+    "href": "index.html#section-10",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Our findings show that unexplained factors associated to immigrant status determine to a great extent disparities in the probability of using hospital, specialist and emergency services of immigrants relative to Spaniards, while individual characteristics, in particular self-reported health and chronic conditions, are much more important in explaining the differences in the probability of using general practitioner services between immigrants and Spaniards\n\n\n\nJiménez-Rubio and Hernández-Quevedo (2010)"
@@ -168,22 +175,22 @@
     "text": "Brief note on interpretation\n\n\n\n\n\nDecomposition methods are based on regression analyses, and thus all of the usual caveats about good specification apply.\n\nIf regressions are purely descriptive, they reveal the associations that characterize the health inequality. Then inequality is explained in a statistical sense but implications for policies to reduce inequality are limited.\n\n\nO’Donnell et al. (2008)"
   },
   {
-    "objectID": "index.html#section-10",
-    "href": "index.html#section-10",
+    "objectID": "index.html#section-11",
+    "href": "index.html#section-11",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Why does this work?\n\nOLS regression line always passes through \\((\\bar{x}, \\bar{y})\\) because residuals sum to zero."
   },
   {
-    "objectID": "index.html#section-11",
-    "href": "index.html#section-11",
+    "objectID": "index.html#section-12",
+    "href": "index.html#section-12",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Why does this work?\n\nThe gap decomposes into endowments (different \\(\\bar{x}\\), same coefficients) and coefficients (same \\(\\bar{x}\\), different slopes/intercepts)."
   },
   {
-    "objectID": "index.html#section-12",
-    "href": "index.html#section-12",
+    "objectID": "index.html#section-13",
+    "href": "index.html#section-13",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Equally valid to use the exposed group’s slope\n\nSame total gap, but different split\n\n\n\n\n\n\n\n\n\n\n\n\nSee R. Oaxaca (1973), Blinder (1973) and Cotton (1988) for details."
@@ -221,7 +228,7 @@
     "href": "index.html#differences-in-coefficients",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Differences in coefficients",
-    "text": "Differences in coefficients\n\n\n\nEach covariate may have a different association with BMI by education\nDifferences in returns form the unexplained component"
+    "text": "Differences in coefficients\n\n\nDifferences in returns (i.e., coefficients) form the ‘unexplained’ component"
   },
   {
     "objectID": "index.html#decomposition-results-variable-contributions",
@@ -235,7 +242,7 @@
     "href": "index.html#summary-endowments-38-coefficients-62",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Summary: Endowments = 38%, Coefficients = 62%",
-    "text": "Summary: Endowments = 38%, Coefficients = 62%\n\n\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n\n \nEndowments\n\n              \n                \n                Est\n                SE\n              \n        \n        \n        \n                \n                  Total\n                  0.608\n                  0.108\n                \n                \n                  Age (years)\n                  0.415\n                  0.074\n                \n                \n                  Female\n                  0.080\n                  0.051\n                \n                \n                  Current smoker\n                  0.004\n                  0.008\n                \n                \n                  Binge drinking (monthly+)\n                  0.001\n                  0.007\n                \n                \n                  Married\n                  0.012\n                  0.016\n                \n                \n                  Income (decile)\n                  0.095\n                  0.071\n                \n        \n      \n    \n\n\n\n\n\n\nIf the low-educated had the same covariate means as the high-educated (keeping the low-educated group’s own coefficients), their BMI would be 0.608 \\(kg/m^2\\) lower — closing 38% of the gap.\n\nMost of this is due to older age among the low-educated, which predicts higher BMI."
+    "text": "Summary: Endowments = 38%, Coefficients = 62%\n\n\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n\n \nEndowments\n\n              \n                \n                Est\n                SE\n              \n        \n        \n        \n                \n                  Total\n                  0.608\n                  0.108\n                \n                \n                  Age (years)\n                  0.415\n                  0.074\n                \n                \n                  Female\n                  0.080\n                  0.051\n                \n                \n                  Current smoker\n                  0.004\n                  0.008\n                \n                \n                  Binge drinking (monthly+)\n                  0.001\n                  0.007\n                \n                \n                  Married\n                  0.012\n                  0.016\n                \n                \n                  Income (decile)\n                  0.095\n                  0.071\n                \n        \n      \n    \n\n\n\n\n\n\nIf the low-educated had the same covariate means as the high-educated (keeping the low-educated group’s own coefficients), their BMI would be 0.608 \\(kg/m^2\\) lower (38% of the gap).\n\nMost of this is due to older age among the low-educated, which predicts higher BMI."
   },
   {
     "objectID": "index.html#summary-endowments-38-coefficients-62-1",
@@ -263,7 +270,7 @@
     "href": "index.html#summary-oaxacablinder-decomposition",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Summary: Oaxaca–Blinder decomposition",
-    "text": "Summary: Oaxaca–Blinder decomposition\n\n\n\nWhen to use\nExplaining average gaps with potential determinants\n\n\nExtensions\nNonlinear outcomes (binary, counts); pooled reference coefficients; variable-by-variable contributions\n\n\nCaveats\nNot causal; split depends on the reference group and, for categorical covariates, the omitted category\n\n\n\n\nR. Oaxaca (1973); Blinder (1973); Cotton (1988)"
+    "text": "Summary: Oaxaca–Blinder decomposition\n\n\n\nWhen to use\nExplaining average gaps with potential determinants\n\n\nExtensions\nNonlinear outcomes (binary, counts); pooled reference coefficients\n\n\nCaveats\nNot causal; specification errors; reference matters for categorical covariates\n\n\n\n\nR. Oaxaca (1973); Blinder (1973); Cotton (1988)"
   },
   {
     "objectID": "index.html#covered-today-2",
@@ -273,11 +280,11 @@
     "text": "Covered Today\n\n\n\n1. Kitagawa’s Decomposition\n\n\n2. Oaxaca–Blinder Decomposition\n\n\n3. Concentration Index Decomposition\n\n\n4. Interventional Decomposition"
   },
   {
-    "objectID": "index.html#section-13",
-    "href": "index.html#section-13",
+    "objectID": "index.html#section-14",
+    "href": "index.html#section-14",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
-    "text": "Relative Concentration Curve\n\nExplicity accounts for changing composition"
+    "text": "Relative Concentration Curve\n\nExplicitly accounts for changing composition"
   },
   {
     "objectID": "index.html#we-want-to-understand-this",
@@ -301,15 +308,15 @@
     "text": "Relative Concentration Index\n\n\n\\[RCI= \\frac{2}{n\\mu} \\sum_{i=1}^{n}y_{i}R_{i}-1\\]\nwhere\n\n\\(\\mu\\) is the mean of \\(y_{i}\\) (e.g., smoking);\n\\(R_{i}\\) is the fractional rank of the ith person in the socioeconomic (i.e., income) distribution.\n\n\n\n\nDecomposition:\nDevelop a model for predicting \\(y\\) using several determinants, then plug back into the \\(RCI\\) equation\nEstimates how much of the overall inequality in \\(y\\) is due to the association between income and other factors that predict health\n\n\nKakwani, Wagstaff, and Doorslaer (1997)"
   },
   {
-    "objectID": "index.html#section-14",
-    "href": "index.html#section-14",
+    "objectID": "index.html#section-15",
+    "href": "index.html#section-15",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "RCI Decomposition\n\n\n\\(RCI\\) is a function of health \\((y_{i})\\) and socioeconomic rank \\((R_{i})\\), i.e. \\[RCI= \\frac{2}{n\\mu} \\sum_{i=1}^{n}{\\color{red}{y_{i}}}R_{i}-1\\]\nThen write a regression expressing health \\((y_{i})\\) as a function of several \\(k_{i}\\) determinants (e.g., age, gender, urban/rural status): \\[\\color{red}{y_{i}}=\\alpha + \\sum{\\beta_{x}x_{k_{i}}}+\\epsilon_{i}\\]\n\n\nWagstaff, Doorslaer, and Watanabe (2003)"
   },
   {
-    "objectID": "index.html#section-15",
-    "href": "index.html#section-15",
+    "objectID": "index.html#section-16",
+    "href": "index.html#section-16",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "RCI Decomposition\n\nNow re-express \\(RCI\\) as:\n\\[RCI=\\sum{(\\beta_{k}\\bar{x}_{k}/\\mu)RCI_{k}}+gRCI_{e}/\\mu\\]\nWhere\n\n\\(\\mu\\) is the mean of \\(y\\),\n\\(\\bar{x}_{k}\\) is the mean of determinant \\(x_{k}\\),\n\\(\\beta_{k}\\) is the regression coefficient for \\(x_{k}\\), and\n\\(RCI_{k}\\) is the relative concentration index for \\(x_{k}\\)."
@@ -326,14 +333,14 @@
     "href": "index.html#procedure-for-decomposing-the-concentration-index",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Procedure for decomposing the Concentration Index",
-    "text": "Procedure for decomposing the Concentration Index\n\n\n\n\n\n\nRegress \\(y\\) (‘health’) on its determinants \\((\\beta_{k}x_{k})\\):\n\n\\[y_{i}=\\alpha + \\sum{\\beta_{x}x_{k_{i}}}+\\epsilon_{i}\\]\n\nCalculate means of \\(y\\) \\((\\mu)\\) and all \\(x_{k}\\) determinants\nCalculate (\\(CI\\)) for the health variable and for each determinant \\((CI_{k})\\). This means using each determinant \\(x_{k}\\) as the “outcome” and estimate a \\(CI\\) for age, \\(CI\\) for education, etc."
+    "text": "Procedure for decomposing the Concentration Index\n\n\n\n\n\n\nRegress \\(y\\) (‘health’) on its determinants \\((\\beta_{k}x_{k})\\):\n\n\\[y_{i}=\\alpha + \\sum{\\beta_{x}x_{k_{i}}}+\\epsilon_{i}\\]\n\nCalculate means of \\(y\\) \\((\\mu)\\) and all \\(x_{k}\\) determinants\nCalculate (\\(RCI\\)) for health and for each determinant \\((RCI_{k})\\), i.e., use each \\(x_{k}\\) as the “outcome” and estimate a \\(RCI\\) for age, education, etc."
   },
   {
     "objectID": "index.html#procedure-for-decomposing-the-concentration-index-1",
     "href": "index.html#procedure-for-decomposing-the-concentration-index-1",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Procedure for decomposing the Concentration Index",
-    "text": "Procedure for decomposing the Concentration Index\n\n\n\n\n\n\nAbsolute contribution: for each \\(x\\) multiply ‘elasticity’ by its concentration index \\((CI_{k})\\):\n\n\\[(\\beta_{k}\\bar{x}_{k}/\\mu)RCI_{k}\\]\n\nCalculate the % contribution of each determinant:\n\n\\[[(\\beta_{k}\\bar{x}_{k}/\\mu)RCI_{k}]/RCI\\]"
+    "text": "Procedure for decomposing the Concentration Index\n\n\n\n\n\n\nAbsolute contribution: for each \\(x\\) multiply ‘elasticity’ by its concentration index \\((RCI_{k})\\):\n\n\\[(\\beta_{k}\\bar{x}_{k}/\\mu)RCI_{k}\\]\n\nCalculate the % contribution of each determinant:\n\n\\[[(\\beta_{k}\\bar{x}_{k}/\\mu)RCI_{k}]/RCI\\]"
   },
   {
     "objectID": "index.html#example-decomposing-socioeconomic-inequality-in-current-smoking",
@@ -350,15 +357,15 @@
     "text": "Data: European Social Survey Round 11 for Sweden\n\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n              \n                 \n                Unique\n                Missing Pct.\n                Mean\n                SD\n                Min\n                Median\n                Max\n                Histogram\n              \n        \n        \n        \n                \n                  Current smoker\n                  2\n                  0\n                  0.1\n                  0.2\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Income decile\n                  10\n                  0\n                  6.6\n                  2.6\n                  1.0\n                  7.0\n                  10.0\n                  \n                \n                \n                  Age (years)\n                  76\n                  0\n                  54.4\n                  18.6\n                  15.0\n                  56.0\n                  90.0\n                  \n                \n                \n                  Low education (ISCED 1–4)\n                  2\n                  0\n                  0.4\n                  0.5\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Female\n                  2\n                  0\n                  0.5\n                  0.5\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Binge drinking (monthly+)\n                  2\n                  0\n                  0.5\n                  0.5\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Obese (BMI ≥ 30)\n                  2\n                  0\n                  0.1\n                  0.4\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Married\n                  2\n                  0\n                  0.5\n                  0.5\n                  0.0\n                  0.0\n                  1.0\n                  \n                \n                \n                  Survey weight\n                  132\n                  0\n                  1.0\n                  0.5\n                  0.3\n                  0.8\n                  4.0"
   },
   {
-    "objectID": "index.html#section-16",
-    "href": "index.html#section-16",
+    "objectID": "index.html#section-17",
+    "href": "index.html#section-17",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Source: Author’s calculations"
   },
   {
-    "objectID": "index.html#section-17",
-    "href": "index.html#section-17",
+    "objectID": "index.html#section-18",
+    "href": "index.html#section-18",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "What are we explaining?\n\nOverall CI = -0.20\n Smoking more concentrated among the poor"
@@ -371,15 +378,15 @@
     "text": "Step 1: Predictors of current smoking\n\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n              \n                Variable\n                β\n                OR\n                95% CI\n                p\n              \n        \n        \n        \n                \n                  Age (years)\n                  -0.001\n                  0.999\n                  (0.99, 1.01)\n                  0.906\n                \n                \n                  Female\n                  0.141\n                  1.152\n                  (0.73, 1.83)\n                  0.547\n                \n                \n                  Low education (ISCED 1–4)\n                  0.359\n                  1.432\n                  (0.90, 2.27)\n                  0.130\n                \n                \n                  Married\n                  -0.989\n                  0.372\n                  (0.21, 0.65)\n                  &lt;0.001\n                \n                \n                  Binge drinking (monthly+)\n                  0.38\n                  1.463\n                  (0.92, 2.32)\n                  0.107\n                \n                \n                  Obese (BMI ≥ 30)\n                  0.495\n                  1.64\n                  (0.90, 2.99)\n                  0.106"
   },
   {
-    "objectID": "index.html#step-2-estimating-elasticity-for-education",
-    "href": "index.html#step-2-estimating-elasticity-for-education",
+    "objectID": "index.html#step-2-estimating-elasticity-for-low-education",
+    "href": "index.html#step-2-estimating-elasticity-for-low-education",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
-    "section": "Step 2: Estimating elasticity for education",
-    "text": "Step 2: Estimating elasticity for education\n\\[RCI=\\sum{ \\underbrace{(\\beta_{k}\\bar{x}_{k}/\\mu)}_{\\text{elasticity}} RCI_{k}}+gRCI_{e}/\\mu\\]\n\n\n\n\\(\\beta_{\\text{low education}}\\) = 0.36 (OR = 1.4)\nMarginal effect: 0.024\nMean low education: 0.452\nMean smoking rate: 7.3%\n\n\nElasticity for low education is: (0.024 * 0.452 / .073) = 0.148\nInterpretation: a 1% increase in low education increases smoking by 14.8% (not percentage points!).\n\n\n\nWhat about the RCI for low education?\n\n\n\nThis is Step (2): Calculate the mean of \\(y\\) \\((\\mu)\\) and of each of the \\(x_{k}\\) determinants"
+    "section": "Step 2: Estimating elasticity for low education",
+    "text": "Step 2: Estimating elasticity for low education\n\\[RCI=\\sum{ \\underbrace{(\\beta_{k}\\bar{x}_{k}/\\mu)}_{\\text{elasticity}} RCI_{k}}+gRCI_{e}/\\mu\\]\n\n\n\n\\(\\beta_{\\text{low education}}\\) = 0.36 (OR = 1.4)\nMarginal effect: 0.024\nMean low education: 0.452\nMean smoking rate: 7.3%\n\n\nElasticity for low education is: (0.024 * 0.452 / .073) = 0.148\nInterpretation: a 1% increase in low education increases smoking by 14.8% (not percentage points!).\n\n\n\nWhat about the RCI for low education?\n\n\n\nThis is Step (2): Calculate the mean of \\(y\\) \\((\\mu)\\) and of each of the \\(x_{k}\\) determinants"
   },
   {
-    "objectID": "index.html#section-18",
-    "href": "index.html#section-18",
+    "objectID": "index.html#section-19",
+    "href": "index.html#section-19",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Step 3: \\(RCI_{k}\\)\nNote the y-axis is cumulative share of low education\n\nThe poorest 50% account for roughly 60% of the share of low educated.\n\n\n\n\n\n\n\n\n\n\n\n\nThis is Step (3): Calculate the \\(CI\\) for each of the potential determinants \\(x_{k}\\)"
@@ -389,11 +396,11 @@
     "href": "index.html#step-4-calculate-contributions",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Step 4: Calculate contributions",
-    "text": "Step 4: Calculate contributions\n\n\nEstimation for a specific factor: Low education\n\n\\[RCI=\\sum{ \\underbrace{(\\beta_{k}\\bar{x}_{k}/\\mu)}_{\\text{elasticity}} RCI_{k}}+gRCI_{e}/\\mu\\]\nThe elasticity of smoking (prior slide) = 0.148\nNow we have \\(RCI_{k}\\) for low education = -0.265\nThe contribution of low education:\n\\[\\text{Elasticity}\\times RCI_{ed} = 0.148 * -0.265 = -.039\\]\nThus low education accounts for -.039/ -0.203 = 19% of the overall \\(RCI\\)"
+    "text": "Step 4: Calculate contributions\n\n\nEstimation for a specific factor: Low education\n\n\\[RCI=\\sum{ \\underbrace{(\\beta_{k}\\bar{x}_{k}/\\mu)}_{\\text{elasticity}} RCI_{k}}+gRCI_{e}/\\mu\\]\nThe elasticity of smoking (prior slide) = 0.148\nNow we have \\(RCI_{k}\\) for low education = -0.265\nThe contribution of low education:\n\\[\\text{Elasticity}\\times RCI_{ed} = 0.148 * -0.265 = -.039\\]\n\n\n\nThus low education accounts for -.039/ -0.203 = 19% of the overall \\(RCI\\)"
   },
   {
-    "objectID": "index.html#section-19",
-    "href": "index.html#section-19",
+    "objectID": "index.html#section-20",
+    "href": "index.html#section-20",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "RCI = -0.203\n\n(-) Binge drinking: ↑ smoking but more common at higher incomes\n\n(+) Married: ↓ smoking but more common at higher incomes\n\n\n\n\n\n    \n\n    \n    \n    \n      \n        \n        \n\n \n \n \nContribution\n\n              \n                Variable\n                Elasticity\n                CI_k\n                Absolute\n                %\n              \n        \n        Logistic regression; marginal effects used as elasticity weights.\n        \n                \n                  Age\n                  -0.030\n                  0.001\n                  -0.000\n                  0.0\n                \n                \n                  Binge drinker\n                  0.152\n                  0.103\n                  0.016\n                  -7.7\n                \n                \n                  Female\n                  0.060\n                  -0.031\n                  -0.002\n                  0.9\n                \n                \n                  Obese\n                  0.068\n                  -0.013\n                  -0.001\n                  0.4\n                \n                \n                  Low education\n                  0.144\n                  -0.265\n                  -0.038\n                  18.8\n                \n                \n                  Married\n                  -0.353\n                  0.284\n                  -0.100\n                  49.4\n                \n                \n                  Residual\n                  —\n                  —\n                  -0.077\n                  38.1"
@@ -410,7 +417,7 @@
     "href": "index.html#summary-concentration-index-decomposition",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Summary: Concentration index decomposition",
-    "text": "Summary: Concentration index decomposition\n\n\n\nWhen to use\nSummarizing with RCI and asking which determinants drive it\n\n\nExtensions\nNonlinear models; Oaxaca-type decomposition of differences and temporal changes\n\n\nCaveats\nThe explained share depends on which determinants enter; associations are predictive, not causal\n\n\n\n\nWagstaff, Doorslaer, and Watanabe (2003); Kakwani, Wagstaff, and Doorslaer (1997); O’Donnell et al. (2008); Erreygers and Kessels (2016)"
+    "text": "Summary: Concentration index decomposition\n\n\n\nWhen to use\nSummarizing with RCI and asking which determinants drive it\n\n\nExtensions\nNonlinear models; Oaxaca-type decomposition of differences and temporal changes\n\n\nCaveats\n‘Explained’ share depends on well-specified model; predictive, not causal\n\n\n\n\nWagstaff, Doorslaer, and Watanabe (2003); Kakwani, Wagstaff, and Doorslaer (1997); O’Donnell et al. (2008); Erreygers and Kessels (2016)"
   },
   {
     "objectID": "index.html#covered-today-3",
@@ -438,7 +445,7 @@
     "href": "index.html#youth-accident-deaths-what-would-we-intervene-on",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Youth accident deaths: what would we intervene on?",
-    "text": "Youth accident deaths: what would we intervene on?\n\n\nDanish-origin adolescents die in accidents more often than immigrant-origin peers (IRR 1.7 vs first-generation)\n\nAlcohol is a plausible pathway: 16% of fatal accidents; Danish-origin has 4x the odds of an alcohol-related death\n\nBut immigrant-origin families are poorer, so adjusting for income widens the gap (IRR 1.7 → 2.6)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhat if Danish-origin youth drank like their immigrant-origin peers?\n\n\nUdesen et al. (2023); Kruckow and Tolstrup (2024) (ethnic IRRs inverted from Kruckow supplementary table 2)"
+    "text": "Youth accident deaths: what would we intervene on?\n\n\nDanish-origin adolescents die in accidents more often than immigrant-origin peers (IRR 1.7 vs first-generation)\n\nAlcohol is a plausible pathway: 16% of fatal accidents; Danish-origin youth have 4x the odds of an alcohol-related death\n\nBut immigrant-origin families are poorer, so adjusting for income widens the gap (IRR 1.7 → 2.6)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWhat if Danish-origin youth drank like their immigrant-origin peers?\n\n\nUdesen et al. (2023); Kruckow and Tolstrup (2024) (ethnic IRRs inverted from Kruckow supplementary table 2)"
   },
   {
     "objectID": "index.html#conceptualizing-the-dag-assumptions",
@@ -455,8 +462,8 @@
     "text": "Different from causal mediation (still valid)"
   },
   {
-    "objectID": "index.html#section-20",
-    "href": "index.html#section-20",
+    "objectID": "index.html#section-21",
+    "href": "index.html#section-21",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "",
     "text": "Steps for pursuing interventional decomposition\n\n\n\n\n\n1 Define the gap and intervention\nConsider feasibility, implementation\n\n\n2 Draw the DAG\nWhich covariates to adjust for (allowability)\n\n\n3 Defend the assumptions\nExchangeability; positivity; consistency\n\n\n4 Estimate the model\nOutcome model, weighting, doubly robust\n\n\n5 Compare factual and counterfactual\nConsider effect scale, uncertainty\n\n\n\n\nJackson and VanderWeele (2018); Jackson (2021); Lundberg (2024)"
@@ -469,18 +476,18 @@
     "text": "Recent example\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nwe estimate the expected 1-year mortality among the low-income patients in a hypothetical world where they initiated medication as often as high-income patients…\n\n\nMøller et al. (2026)"
   },
   {
-    "objectID": "index.html#moller-results",
-    "href": "index.html#moller-results",
+    "objectID": "index.html#møller-results",
+    "href": "index.html#møller-results",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
-    "section": "Moller results",
-    "text": "Moller results\n\n\n\n\n\n\n\n\n\n\n\n\n\nIDIE-exposed is the expected reduction in 1-year mortality among low-income heart failure patients in a hypothetical world where they initiated medication with the same probability as observed among similar high-income patients, rather than their observed probability.\n\n\n\nMøller et al. (2026)"
+    "section": "Møller results",
+    "text": "Møller results\n\n\n\n\n\n\n\n\n\n\n\n\n\nIDIE-exposed is the expected reduction in 1-year mortality among low-income heart failure patients in a hypothetical world where they initiated medication with the same probability as observed among similar high-income patients, rather than their observed probability.\n\n\n\nMøller et al. (2026)"
   },
   {
     "objectID": "index.html#summary-interventional-decomposition",
     "href": "index.html#summary-interventional-decomposition",
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "Summary: Interventional decomposition",
-    "text": "Summary: Interventional decomposition\n\n\n\nWhen to use\nCounterfactual inequality under a hypothetical intervention on a mediator\n\n\nExtensions\nGap-closing estimand; weighting framework; nonparametric estimation\n\n\nCaveats\nCausal assumptions; well-defined intervention; choices about ‘allowable’ covariates\n\n\n\n\nJackson and VanderWeele (2018); Jackson (2021); Lundberg (2024); Yu and Elwert (2025); Møller et al. (2026)"
+    "text": "Summary: Interventional decomposition\n\n\n\nWhen to use\nCounterfactual inequality under a hypothetical intervention on a mediator\n\n\nExtensions\nStochastic interventions; weighting framework; nonparametric estimation\n\n\nCaveats\nCausal assumptions; well-defined intervention; choices about ‘allowable’ covariates\n\n\n\n\nJackson and VanderWeele (2018); Jackson (2021); Lundberg (2024); Yu and Elwert (2025); Møller et al. (2026)"
   },
   {
     "objectID": "index.html#summary",
@@ -495,19 +502,5 @@
     "title": "Decomposition Techniques for Social Epidemiology: Why and How",
     "section": "References",
     "text": "References\n\n\nBlinder, Alan S. 1973. “Wage Discrimination: Reduced Form and Structural Estimates.” Journal of Human Resources 8 (4): 436–55. https://doi.org/10.2307/144855.\n\n\nCotton, Jeremiah. 1988. “On the Decomposition of Wage Differentials.” The Review of Economics and Statistics 70 (2): 236. https://doi.org/10.2307/1928307.\n\n\nDas Gupta, Prithwis. 1993. “Standardization and Decomposition of Rates: A User’s Manual.” Current Population Reports P23-186. Washington, DC: U.S. Bureau of the Census.\n\n\nEikemo, Terje A., and Emil Øversveen. 2019. “Social Inequalities in Health: Challenges, Knowledge Gaps, Key Debates and the Need for New Data.” Scandinavian Journal of Public Health 47 (6): 593–97. https://doi.org/10.1177/1403494819866416.\n\n\nErreygers, Guido, and Roselinde Kessels. 2016. “Structural Equation Modeling for Decomposing Rank-Dependent Indicators of Socioeconomic Inequality of Health: An Empirical Study.” Health Economics Review 6 (1). https://doi.org/10.1186/s13561-016-0134-2.\n\n\nHeller, Richard F., Patrick McElduff, and Richard Edwards. 2002. “Impact of Upward Social Mobility on Population Mortality: Analysis with Routine Data.” BMJ 325 (7356): 134. https://doi.org/10.1136/bmj.325.7356.134.\n\n\nHosseinpoor, Ahmad Reza, Eddy van Doorslaer, and Niko Speybroeck. 2006. “Decomposing Socioeconomic Inequality in Infant Mortality in Iran.” International Journal of Epidemiology 35 (5): 1211–19. https://doi.org/10.1093/ije/dyl164.\n\n\nJackson, John W. 2021. “Meaningful Causal Decompositions in Health Equity Research: Definition, Identification, and Estimation Through a Weighting Framework.” Epidemiology 32 (2): 282290. https://doi.org/10.1097/EDE.0000000000001319.\n\n\nJackson, John W., Yea-Jen Hsu, Raquel C. Greer, Romsai T. Boonyasai, and Chanelle J. Howe. 2025. “The Target Study: A Conceptual Model and Framework for Measuring Disparity.” Sociological Methods & Research, April, 00491241251314037. https://doi.org/10.1177/00491241251314037.\n\n\nJackson, John W., and Tyler J. VanderWeele. 2018. “Decomposition Analysis to Identify Intervention Targets for Reducing Disparities.” Epidemiology 29 (6): 825–35. https://doi.org/10.1097/EDE.0000000000000901.\n\n\nJiménez-Rubio, Dolores, and Cristina Hernández-Quevedo. 2010. “Inequalities in the Use of Health Services Between Immigrants and the Native Population in Spain: What Is Driving the Differences?” The European Journal of Health Economics 12 (1): 17–28. https://doi.org/10.1007/s10198-010-0220-z.\n\n\nKakwani, Nanak, Adam Wagstaff, and Eddy van Doorslaer. 1997. “Socioeconomic Inequalities in Health: Measurement, Computation, and Statistical Inference.” Journal of Econometrics 77 (1): 87–103. https://doi.org/10.1016/S0304-4076(96)01807-6.\n\n\nKessels, Roselinde, and Guido Erreygers. 2013. “Regression-Based Decompositions of Rank-Dependent Indicators of Socioeconomic Inequality of Health.” In Health and Inequality, 227–59. Emerald Group Publishing Limited. https://doi.org/10.1108/s1049-2585(2013)0000021010.\n\n\nKitagawa, Evelyn M. 1955. “Components of a Difference Between Two Rates.” Journal of the American Statistical Association 50 (272): 1168–94. https://doi.org/10.2307/2281213.\n\n\nKruckow, Sofie, and Janne S. Tolstrup. 2024. “All Cause and Cause Specific Mortality in 15-24-Year-Olds in Denmark 2010 to 2022: Nationwide Study of Socioeconomic Predictors.” BMJ Medicine 3 (1): e000685. https://doi.org/10.1136/bmjmed-2023-000685.\n\n\nLundberg, Ian. 2024. “The Gap-Closing Estimand: A Causal Approach to Study Interventions That Close Disparities Across Social Categories.” Sociological Methods & Research 53 (2): 507–70. https://doi.org/10.1177/00491241211055769.\n\n\nMøller, Amalie Lykkemark, Kathrine Kold Sørensen, Nerissa Nance, Julie Thietje Mortensen, Thomas Alexander Gerds, Christian Torp-Pedersen, and Helene Charlotte Wiese Rytgaard. 2026. “Estimating Effects of Targeted Public Health Interventions Using the Interventional Disparity Indirect Effect Among the Exposed.” Journal of Epidemiology and Community Health 80 (5): 309–15. https://doi.org/10.1136/jech-2025-224627.\n\n\nO’Donnell, Owen, Eddy van Doorslaer, Adam Wagstaff, and Magnus Lindelow. 2008. Analyzing Health Equity Using Household Survey Data. Washington, DC: World Bank.\n\n\nOaxaca, Ronald. 1973. “Male-Female Wage Differentials in Urban Labor Markets.” International Economic Review 14 (3): 693–709. https://doi.org/10.2307/2525981.\n\n\nOaxaca, Ronald L., and Eva Sierminska. 2025. “Oaxaca-Blinder Meets Kitagawa: What Is the Link?” Edited by José Antonio Ortega. PLOS One 20 (5): e0321874. https://doi.org/10.1371/journal.pone.0321874.\n\n\nOpacic, Aleksei, Lai Wei, and Xiang Zhou. 2026. “Disparity Analysis: A Tale of Two Approaches.” Journal of the Royal Statistical Society Series A: Statistics in Society 189 (2): 805–33. https://doi.org/10.1093/jrsssa/qnaf008.\n\n\nSartorius, Victor, Marianne Philibert, Kari Klungsoyr, Jeannette Klimont, Katarzyna Szamotulska, Zeljka Drausnik, Petr Velebil, et al. 2024. “Neonatal Mortality Disparities by Gestational Age in European Countries.” JAMA Network Open 7 (8): e2424226. https://doi.org/10.1001/jamanetworkopen.2024.24226.\n\n\nUdesen, Caroline Holt, Signe Skovgaard Hviid, Ulrik Becker, and Janne S. Tolstrup. 2023. “Alcohol-Related Mortality in 15-24-Year-Olds in Denmark (2010-2019): A Nationwide Exploratory Study of Circumstances and Socioeconomic Predictors.” The Lancet Regional Health - Europe 29 (June): 100620. https://doi.org/10.1016/j.lanepe.2023.100620.\n\n\nWagstaff, Adam, Eddy van Doorslaer, and Naoko Watanabe. 2003. “On Decomposing the Causes of Health Sector Inequalities with an Application to Malnutrition Inequalities in Vietnam.” Journal of Econometrics 112 (1): 207–23. https://doi.org/10.1016/S0304-4076(02)00161-6.\n\n\nYu, Ang, and Felix Elwert. 2025. “Nonparametric Causal Decomposition of Group Disparities.” The Annals of Applied Statistics 19 (1). https://doi.org/10.1214/24-AOAS1990."
-  },
-  {
-    "objectID": "index.html#backup-three-component",
-    "href": "index.html#backup-three-component",
-    "title": "Decomposition Techniques for Social Epidemiology: Why and How",
-    "section": "Backup: Kitagawa’s three-component version",
-    "text": "Backup: Kitagawa’s three-component version\n\n\\[\\underbrace{\\text{Rate}_A - \\text{Rate}_B}_{\\text{crude difference}} = \\overbrace{\\sum_i R_{Bi}(P_{Ai}-P_{Bi})}^{\\text{composition}} + \\overbrace{\\sum_i P_{Bi}(R_{Ai}-R_{Bi})}^{\\text{rate}} + \\overbrace{\\sum_i (R_{Ai}-R_{Bi})(P_{Ai}-P_{Bi})}^{\\text{interaction}}\\]\n\n\n\n\n\n\n\n\n\n\nComposition\n\n\n\n\nGroup\n\n\n\\(R_{Bi}\\)\n\n\n\\(P_{Ai}-P_{Bi}\\)\n\n\nContrib.\n\n\n\n\n\n\nYoung\n\n\n20\n\n\n−0.20\n\n\n−4.0\n\n\n\n\nOld\n\n\n30\n\n\n+0.20\n\n\n+6.0\n\n\n\n\nSum\n\n\n\n\n\n\n+2.0\n\n\n\n\n\n\n\n\n\n\n\n\n\nRate\n\n\n\n\nGroup\n\n\n\\(P_{Bi}\\)\n\n\n\\(R_{Ai}-R_{Bi}\\)\n\n\nContrib.\n\n\n\n\n\n\nYoung\n\n\n0.50\n\n\n−10\n\n\n−5.0\n\n\n\n\nOld\n\n\n0.50\n\n\n+10\n\n\n+5.0\n\n\n\n\nSum\n\n\n\n\n\n\n0.0\n\n\n\n\n\n\n\n\n\n\n\n\n\nInteraction\n\n\n\n\nGroup\n\n\n\\(R_{Ai}-R_{Bi}\\)\n\n\n\\(P_{Ai}-P_{Bi}\\)\n\n\nContrib.\n\n\n\n\n\n\nYoung\n\n\n−10\n\n\n−0.20\n\n\n+2.0\n\n\n\n\nOld\n\n\n+10\n\n\n+0.20\n\n\n+2.0\n\n\n\n\nSum\n\n\n\n\n\n\n+4.0\n\n\n\n\n\n\n\n Total = +2.0 + 0.0 + 4.0 = +6.0 = crude gap (31 − 25)\n\n\nAdd the interaction to composition: +6.0 and 0.0 (A’s rates). Add it to rate: +2.0 and +4.0 (B’s rates)."
-  },
-  {
-    "objectID": "index.html#section-21",
-    "href": "index.html#section-21",
-    "title": "Decomposition Techniques for Social Epidemiology: Why and How",
-    "section": "",
-    "text": "Overall contributions are net"
   }
 ]

@@ -403,7 +403,7 @@ knitr::include_graphics(here("images",
 Seminal paper by @kitagawa1955
 :::
 
-## {visibility="hidden"}
+##
 
 ```{r, out.width = "80%"}
 knitr::include_graphics(here("images", 
@@ -701,7 +701,7 @@ tt(toy_ref, width = 0.75) |>
 
 Crude gap = `r crude_a` − `r crude_b` = **`r crude_a - crude_b`** in every row; only the split changes
 
-The one-sided rows differ by the interaction, $\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})$ = `r sprintf("%.1f", inter)`, which the average splits evenly
+Single references differ an interaction, $\sum_i (P_{Ai}-P_{Bi})(R_{Ai}-R_{Bi})$ = `r sprintf("%.1f", inter)`, which the average splits evenly
 
 ## 
 
@@ -910,6 +910,17 @@ dist_main_plot +
   inset_element(dist_inset_plot, left = 0.01, bottom = 0.15, right = 0.40, top = 0.98)
 ```
 
+::: footnote
+@sartorius2024
+:::
+
+##
+
+```{r, out.width="90%"}
+knitr::include_graphics(here("images",
+  "sartorius_kitagawa_by_stratum.png"))
+```
+
 ::: {.fragment}
 ::: {.textbox .dark .absolute top="40%" left="10%" width="75%"}
 **Implications for interventions**
@@ -918,10 +929,6 @@ DK: improving care at early GA
 
 AT: shifting the distribution of GA later
 :::
-:::
-
-::: footnote
-@sartorius2024
 :::
 
 ## Summary: Kitagawa's decomposition {.vcenter}
@@ -1410,9 +1417,9 @@ Source: Author's calculations
 
 ::::: columns
 ::: {.column width="20%"}
-- Each covariate may have a different association with BMI by education
 
-- Differences in *returns* form the unexplained component
+Differences in *returns* (i.e., coefficients) form the 'unexplained' component
+
 :::
 
 ::: {.column width="80%"}
@@ -1541,7 +1548,7 @@ tt(disp, width = 1) |>
 :::
 
 ::: {.column width="45%"}
-If the low-educated had the same covariate means as the high-educated (keeping the low-educated group's own coefficients), their BMI would be 0.608 $kg/m^2$ lower — closing 38% of the gap.
+If the low-educated had the same covariate means as the high-educated (keeping the low-educated group's own coefficients), their BMI would be 0.608 $kg/m^2$ lower (38% of the gap).
 
 <br>
 
@@ -1608,7 +1615,7 @@ plot_endow_detail()
 
 ## Decomposition results: does the reference group matter?
 
-```{r}
+```{r, out.width = "90%"}
 #| fig-height: 4.5
 ref_lab <- c(paste(GROUP_2, "betas"), paste(GROUP_1, "betas"), "Pooled betas")
 
@@ -1657,12 +1664,12 @@ Explaining average gaps with potential determinants
 
 ::: msg-item
 **Extensions**\
-Nonlinear outcomes (binary, counts); pooled reference coefficients; variable-by-variable contributions
+Nonlinear outcomes (binary, counts); pooled reference coefficients
 :::
 
 ::: msg-item
 **Caveats**\
-Not causal; split depends on the reference group and, for categorical covariates, the omitted category
+Not causal; specification errors; reference matters for categorical covariates
 :::
 ::::::
 :::::::
@@ -1682,7 +1689,7 @@ Not causal; split depends on the reference group and, for categorical covariates
 ### Relative Concentration Curve
 <br>
 
-Explicity accounts for changing composition
+Explicitly accounts for changing composition
 :::
 
 ::: {.column width="75%"}
@@ -1856,7 +1863,7 @@ $$y_{i}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 
 2.  Calculate means of $y$ $(\mu)$ and all $x_{k}$ determinants
 
-3.  Calculate ($CI$) for the health variable *and* for each determinant $(CI_{k})$. This means using each determinant $x_{k}$ as the "outcome" and estimate a $CI$ for age, $CI$ for education, etc.
+3.  Calculate ($RCI$) for health *and* for each determinant $(RCI_{k})$, i.e., use each $x_{k}$ as the "outcome" and estimate a $RCI$ for age, education, etc.
 :::
 :::::
 
@@ -1869,7 +1876,7 @@ $$y_{i}=\alpha + \sum{\beta_{x}x_{k_{i}}}+\epsilon_{i}$$
 :::
 
 ::: {.column width="75%"}
-4.  Absolute contribution: for each $x$ multiply 'elasticity' by its concentration index $(CI_{k})$:
+4.  Absolute contribution: for each $x$ multiply 'elasticity' by its concentration index $(RCI_{k})$:
 
 $$(\beta_{k}\bar{x}_{k}/\mu)RCI_{k}$$
 
@@ -2089,7 +2096,7 @@ The appropriate interpretation is that the covariates in the model account for p
 See @kessels2013 and @erreygers2016
 :::
 
-## Step 2: Estimating elasticity for education
+## Step 2: Estimating elasticity for low education
 
 $$RCI=\sum{ \underbrace{(\beta_{k}\bar{x}_{k}/\mu)}_{\text{elasticity}} RCI_{k}}+gRCI_{e}/\mu$$
 
@@ -2196,10 +2203,14 @@ Now we have $RCI_{k}$ for low education = -0.265
 The contribution of low education:
 
 $$\text{Elasticity}\times RCI_{ed} = 0.148 * -0.265 = -.039$$
-
-**Thus low education accounts for -.039/ -0.203 = 19% of the overall** $RCI$
 :::
 :::::
+
+::: {.fragment}
+::: {.textbox .dark .absolute top="50%" left="15%" width="50%"}
+**Thus low education accounts for -.039/ -0.203 = 19% of the overall** $RCI$
+:::
+:::
 
 ## 
 
@@ -2280,7 +2291,7 @@ Nonlinear models; Oaxaca-type decomposition of differences and temporal changes
 
 ::: msg-item
 **Caveats**\
-The explained share depends on which determinants enter; associations are predictive, not causal
+'Explained' share depends on well-specified model; predictive, not causal
 :::
 ::::::
 :::::::
@@ -2343,7 +2354,7 @@ Danish-origin adolescents die in accidents more often than immigrant-origin peer
 
 <br>
 
-Alcohol is a plausible pathway: 16% of fatal accidents; Danish-origin has 4x the odds of an alcohol-related death
+Alcohol is a plausible pathway: 16% of fatal accidents; Danish-origin youth have 4x the odds of an alcohol-related death
 
 <br>
 
@@ -2522,7 +2533,7 @@ knitr::include_graphics(here("images",
 @møller2026
 :::
 
-## Moller results
+## Møller results
 
 ::::: {.columns}
 ::: {.column width = "50%"}
@@ -2555,7 +2566,7 @@ Counterfactual inequality under a hypothetical intervention on a mediator
 
 ::: msg-item
 **Extensions**\
-Gap-closing estimand; weighting framework; nonparametric estimation
+Stochastic interventions; weighting framework; nonparametric estimation
 :::
 
 ::: msg-item
@@ -2590,155 +2601,3 @@ Used responsibly, they can help to provide key evidence on why health inequaliti
 
 ::: {#refs}
 :::
-
-# Backup
-
-## Backup: Kitagawa's three-component version {#backup-three-component}
-
-::: {style="font-size:0.5em;"}
-$$\underbrace{\text{Rate}_A - \text{Rate}_B}_{\text{crude difference}} = \overbrace{\sum_i R_{Bi}(P_{Ai}-P_{Bi})}^{\text{composition}} + \overbrace{\sum_i P_{Bi}(R_{Ai}-R_{Bi})}^{\text{rate}} + \overbrace{\sum_i (R_{Ai}-R_{Bi})(P_{Ai}-P_{Bi})}^{\text{interaction}}$$
-:::
-
-::::: {.columns}
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="0"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Composition</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">20</td>
-<td style="text-align:center; border:none;">−0.20</td>
-<td style="text-align:center; border:none;">−4.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">30</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+6.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">+2.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="1"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Rate</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">0.50</td>
-<td style="text-align:center; border:none;">−10</td>
-<td style="text-align:center; border:none;">−5.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">0.50</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+5.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">0.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-
-::: {.column width="32%"}
-::: {.fragment data-fragment-index="2"}
-<table style="width:100%; border-collapse:collapse; font-size:0.55em;">
-<thead>
-<tr>
-<th style="padding:4px 8px; border:none;"></th>
-<th colspan="3" style="text-align:center; padding:4px 8px; border:none; border-bottom:1px solid #888;">Interaction</th>
-</tr>
-<tr>
-<th style="text-align:left; padding:4px 8px; border:none; border-bottom:2px solid #888;">Group</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$R_{Ai}-R_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">$P_{Ai}-P_{Bi}$</th>
-<th style="padding:4px 8px; border:none; border-bottom:2px solid #888;">Contrib.</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding:4px 8px; border:none;">Young</td>
-<td style="text-align:center; border:none;">−10</td>
-<td style="text-align:center; border:none;">−0.20</td>
-<td style="text-align:center; border:none;">+2.0</td>
-</tr>
-<tr>
-<td style="padding:4px 8px; border:none; border-bottom:1px solid #888;">Old</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+10</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+0.20</td>
-<td style="text-align:center; border:none; border-bottom:1px solid #888;">+2.0</td>
-</tr>
-<tr style="font-weight:bold;">
-<td style="padding:4px 8px; border:none;">Sum</td>
-<td style="border:none;"></td>
-<td style="border:none;"></td>
-<td style="text-align:center; border:none;">+4.0</td>
-</tr>
-</tbody>
-</table>
-:::
-:::
-:::::
-
-::: {.fragment data-fragment-index="3"}
-<br>
-Total = +2.0 + 0.0 + 4.0 = **+6.0** = crude gap (31 − 25)
-:::
-
-::: {.fragment data-fragment-index="4"}
-Add the interaction to composition: +6.0 and 0.0 (A's rates). Add it to rate: +2.0 and +4.0 (B's rates).
-:::
-
-##
-
-::::: {.columns}
-::: {.column width = "20%"}
-
-Overall contributions are *net*
-:::
-
-::: {.column width = "80%"}
-```{r, out.width="90%"}
-knitr::include_graphics(here("images",
-  "sartorius_kitagawa_by_stratum.png"))
-```
-:::
-:::::
